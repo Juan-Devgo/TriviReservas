@@ -6,12 +6,12 @@ TriviReservas es una aplicación web para la gestión de alojamientos y reservas
   <li><strong>Java JDK 21</strong></li>
   <li><strong>Spring Boot</strong></li>
   <li><strong>IntelliJ IDEA Ultimate</strong></li>
-  <li><strong>MariaDB</strong></li>
+  <li><strong>PostgreSQL</strong></li>
+  <li><strong>Pg Admin 4</strong></li>
   <li><strong>GIT</strong></li>
   <li><strong>Visual Studio Code</strong></li>
   <li><strong>Angular</strong></li>
   <li><strong>Gradle (Groovy)</strong></li>
-  <li><strong>Outerbase Studio</strong></li>
 </ul>
 
 ## Requisitos Funcionales
@@ -22,5 +22,7 @@ TriviReservas es una aplicación web para la gestión de alojamientos y reservas
 ### Fase 1: Diseño
 <strong>Entregables</strong>
 
-  * [Mockups]()
-  * [Especificación de requisitos]() con liniamientos de Open API
+  * [Mockups](https://docs.google.com/document/d/1Wdn6MTIc1pqYjGzdecsJyvizYV92dwLDx3XrxYz-XXA/edit?usp=sharing)
+  * [Especificación de requisitos](/src/main/resources/openapi.yml) con liniamientos de Open API
+  * Diagrama de clases:
+![Diagrama de clases TriviReservas 1.0.1](/src/main/resources/DiagramaClases_TriReservas.drawio.png)
