@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: TriReservas API
-  description: |- 
+  description: |-
     TriReservas es una aplicación web para la gestión de alojamientos y reservas, con roles diferenciados para 
     usuarios y anfitriones. Desarrollada con Spring Boot, JPA y Angular, ofrece una solución moderna y eficiente para la
     administración de estancias.
@@ -60,11 +60,11 @@ paths:
               schema:
                 default: {code: "getUsers403", message: "No tiene permisos para ver la lista de usuarios."}
         default:
-            description: Error inesperado
-            content:
-              application/json:
-                schema:
-                  default: {code: "ERRIN-01", message: "Error inesperado al tratar de obtener los usuarios."}
+          description: Error inesperado
+          content:
+            application/json:
+              schema:
+                default: {code: "ERRIN-01", message: "Error inesperado al tratar de obtener los usuarios."}
       security:
         - bearerAuth: []
   /api/users/{user_uuid}:
@@ -317,7 +317,7 @@ paths:
       operationId: loginUser
       parameters:
         - name: mode
-          in: query
+          in: path
           required: true
           description: Modo de autenticación, puede ser por 'email' o 'phone'.
           schema:
@@ -345,7 +345,7 @@ paths:
           content:
             application/json:
               schema:
-                default: {code: "RYA01-2", message: "Error en la solitud al tratar de iniciar sesión."}
+                default: {code: "RYA01-1", message: "Error en la solitud al tratar de iniciar sesión."}
         default:
           description: Error inesperado
           content:
@@ -394,7 +394,7 @@ paths:
       operationId: loginHost
       parameters:
         - name: mode
-          in: query
+          in: path
           required: true
           description: Modo de autenticación, puede ser por 'email' o 'phone'.
           schema:
@@ -815,7 +815,7 @@ paths:
       description: Permite a un usuario agregar un comentario y una valoración a un alojamiento específico.
       operationId: addCommentToLodging
       parameters:
-        - name: uuid
+        - name: lodging_uuid
           in: path
           required: true
           schema:
@@ -862,11 +862,11 @@ paths:
               schema:
                 default: {code: "RYA05-2", message: "No autorizado para esta acción. (JWT ausente)"}
         '403':
-            description: Prohibido
-            content:
-              application/json:
-                schema:
-                  default: {code: "RYA05-3", message: "Prohibido para esta acción (JWT inválido o sin permisos)"}
+          description: Prohibido
+          content:
+            application/json:
+              schema:
+                default: {code: "RYA05-3", message: "Prohibido para esta acción (JWT inválido o sin permisos)"}
         '404':
           description: Alojamiento no encontrado.
           content:
@@ -1032,7 +1032,7 @@ paths:
       description: Crea una nueva reserva para un alojamiento específico.
       operationId: createReservation
       parameters:
-        - name: uuid
+        - name: lodging_uuid
           in: path
           required: true
           schema:
@@ -1130,7 +1130,7 @@ paths:
       description: Actualiza el estado de una reserva existente identificada por su UUID.
       operationId: cancelReservation
       parameters:
-        - name: uuid
+        - name: reservation_uuid
           in: path
           required: true
           schema:
@@ -1359,6 +1359,10 @@ components:
           items:
             type: string
             format: uuid
+        userState:
+          type: string
+          enum: [ACTIVE, INACTIVE]
+          default: ACTIVE
         creationDate:
           type: string
           format: date-time
@@ -1376,7 +1380,6 @@ components:
         UUID:
           type: string
           format: uuid
-          required: false
         title:
           type: string
         hostUUID:
@@ -1384,7 +1387,7 @@ components:
           format: uuid
         description:
           type: string
-        details:
+        details:   # -> Falta en el diagrama de clases
           type: object
           properties:
             location:
@@ -1416,6 +1419,10 @@ components:
                 type: string
                 format: url
                 example: "https://example.com/image.jpg"
+        lodgingState:
+          type: string
+          enum: [ACTIVE, DELETED]
+          default: ACTIVE
         comments:
           type: array
           items:
@@ -1462,9 +1469,9 @@ components:
           type: integer
           format: int8
         reservationState:
-            type: string
-            enum: [PENDING, CONFIRMED, CANCELLED, COMPLETED]
-            default: PENDING
+          type: string
+          enum: [PENDING, CONFIRMED, CANCELLED, COMPLETED]
+          default: PENDING
         creationDate:
           type: string
           format: date-time
