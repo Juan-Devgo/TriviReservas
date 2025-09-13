@@ -25,4 +25,4 @@ TriviReservas es una aplicación web para la gestión de alojamientos y reservas
   * [Mockups](https://docs.google.com/document/d/1Wdn6MTIc1pqYjGzdecsJyvizYV92dwLDx3XrxYz-XXA/edit?usp=sharing)
   * [Especificación de requisitos](/src/main/resources/openapi.yml) con liniamientos de Open API
   * Diagrama de clases:
-![Diagrama de clases TriviReservas 1.0.1](/src/main/resources/DiagramaClases_TriReservas.drawio.png)
+![Diagrama de clases TriviReservas 1.0.1](/src/main/resources/diagrama_clases.drawio.png)
