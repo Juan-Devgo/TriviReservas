@@ -280,6 +280,13 @@ paths:
             type: string
             format: uuid
           description: UUID del usuario que desea cambiar su contraseña.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: string
+              example: Pass123 | 102934
       responses:
         '200':
           description: Contraseña restablecida satisfactoriamente.
@@ -1204,9 +1211,6 @@ components:
         phone:
           type: string
           format: number
-        password:
-          type: string
-          format: password
         role:
           type: string
           enum: [ USER, HOST ]
@@ -1216,7 +1220,6 @@ components:
       required:
         - name
         - email
-        - password
         - role
         - birthDate
     UserLoginDTO:
@@ -1299,9 +1302,6 @@ components:
       description: Esquema que representa una reserva para transferencia de datos.
       type: object
       properties:
-        lodgingUUID:
-          type: string
-          format: uuid
         checkIn:
           type: string
           format: date
@@ -1359,7 +1359,7 @@ components:
           items:
             type: string
             format: uuid
-        userState:
+        state:
           type: string
           enum: [ACTIVE, INACTIVE]
           default: ACTIVE
@@ -1372,6 +1372,7 @@ components:
         - name
         - email
         - password
+        - state
         - creationDate
     Lodging:
       description: Esquema que representa un alojamiento en el sistema.
@@ -1387,7 +1388,7 @@ components:
           format: uuid
         description:
           type: string
-        details:   # -> Falta en el diagrama de clases
+        details:
           type: object
           properties:
             location:
@@ -1419,7 +1420,7 @@ components:
                 type: string
                 format: url
                 example: "https://example.com/image.jpg"
-        lodgingState:
+        state:
           type: string
           enum: [ACTIVE, DELETED]
           default: ACTIVE
@@ -1442,6 +1443,7 @@ components:
         - hostUUID
         - description
         - details
+        - state
         - creationDate
     Reservation:
       description: Esquema que representa una reserva en el sistema.
@@ -1468,7 +1470,7 @@ components:
         guests:
           type: integer
           format: int8
-        reservationState:
+        state:
           type: string
           enum: [PENDING, CONFIRMED, CANCELLED, COMPLETED]
           default: PENDING
@@ -1483,13 +1485,19 @@ components:
         - checkOut
         - totalPrice
         - guests
-        - reservationState
+        - state
         - creationDate
     Comment:
       description: Esquema que representa un comentario en el sistema.
       type: object
       properties:
         UUID:
+          type: string
+          format: uuid
+        userUUID:
+          type: string
+          format: uuid
+        lodgingUUID:
           type: string
           format: uuid
         comment:
@@ -1506,6 +1514,8 @@ components:
           maxLength: 500
       required:
         - UUID
+        - userUUID
+        - lodgingUUID
         - comment
         - valuation
         - creationDate
