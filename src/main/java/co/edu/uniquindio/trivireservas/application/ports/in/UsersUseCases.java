@@ -14,11 +14,11 @@ public interface UsersUseCases {
 
     UserDTO getUser(UUID id);
 
-    List<LodgingDTO> getFavoriteLodgings(UUID userUUID);
+    List<LodgingDTO> getUserFavoriteLodgings(UUID userUUID);
 
-    List<LodgingDTO> getRecommendationsLodgings(UUID userUUID);
+    List<LodgingDTO> getUserRecommendationsLodgings(UUID userUUID);
 
-    void updateUser(UUID userUUID, UpdateUserDTO dto);
+    Void updateUser(UUID userUUID, UpdateUserDTO dto);
 
-    void updatePasswordUser(UUID userUUID, UpdatePasswordDTO dto);
+    Void updatePasswordUser(UUID userUUID, UpdatePasswordDTO dto);
 }

@@ -1,4 +1,8 @@
 package co.edu.uniquindio.trivireservas.domain;
 
-public class ReservationState {
+public enum ReservationState {
+    PENDING,
+    CONFIRMED,
+    CANCELLED,
+    COMPLETED
 }

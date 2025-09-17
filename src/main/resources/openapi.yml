@@ -14,7 +14,7 @@ info:
     * Juan Sebastián Londoño Ramírez [github](https://github.com/Juan3bitas)
     * Angie Carolina Grajales Giraldo [github](https://github.com/angiec-grajalesg)
     * Juan Diego García Nieto [github](https://github.com/Juan-Devgo)
-  version: 1.0.0
+  version: 1.1.0
   license:
     name: GNU General Public License v3.0
     url: https://www.gnu.org/licenses/gpl-3.0.en.html
@@ -27,6 +27,8 @@ tags:
     description: Operaciones relacionadas con alojamientos
   - name: Reservation
     description: Operaciones relacionadas con reservas
+  - name: Image
+    description: Operaciones relacionadas con imágenes
 servers:
   - url: http://localhost:8080
     description: Servidor local de desarrollo
@@ -40,34 +42,154 @@ paths:
       operationId: getUsers
       responses:
         '200':
-          description: Lista de usuarios
+          description: Usuarios obtenidos
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/User'
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: false
+                  message:
+                    type: string
+                    default: "Usuarios obtenidos satisfactoriamente."
+                  content:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/UserDTO'
         '401':
           description: No autorizado
           content:
             application/json:
               schema:
-                default: {code: "getUsers401", message: "No está autorizado para ver la lista de usuarios."}
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: true
+                  message:
+                    type: string
+                    default: "No autorizado."
+                  content:
+                    default: {code: "getUsers401", message: "No está autorizado para ver la lista de usuarios."}
         '403':
           description: Prohibido
           content:
             application/json:
               schema:
-                default: {code: "getUsers403", message: "No tiene permisos para ver la lista de usuarios."}
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: true
+                  message:
+                    type: string
+                    default: "Prohibido."
+                  content:
+                    default: {code: "getUsers403", message: "No tiene permisos para ver la lista de usuarios."}
         default:
           description: Error inesperado
           content:
             application/json:
               schema:
-                default: {code: "ERRIN-01", message: "Error inesperado al tratar de obtener los usuarios."}
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: true
+                  message:
+                    type: string
+                    default: "Error inesperado."
+                  content:
+                    default: {code: "ERRIN-01", message: "Error inesperado al tratar de obtener los usuarios."}
       security:
         - bearerAuth: []
   /api/users/{user_uuid}:
+    get:
+      tags:
+        - User
+      summary: Obtener un usuario
+      description: Obtiene un usuario específico identificado por su UUID.
+      operationId: getUser
+      responses:
+        '200':
+          description: Usuario obtenido
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: false
+                  message:
+                    type: string
+                    default: "Usuario obtenido satisfactoriamente."
+                  content:
+                    $ref: '#/components/schemas/UserDTO'
+        '401':
+          description: No autorizado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: true
+                  message:
+                    type: string
+                    default: "No autorizado."
+                  content:
+                    default: { code: "getUser401", message: "No autorizado para esta acción. (JWT ausente)" }
+        '403':
+          description: Prohibido
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: true
+                  message:
+                    type: string
+                    default: "Prohibido."
+                  content:
+                    default: { code: "getUser403", message: "Prohibido para esta acción (JWT inválido o sin permisos)" }
+        '404':
+          description: Usuario no encontrado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: true
+                  message:
+                    type: string
+                    default: "Usuario no encontrado."
+                  content:
+                    default: {code: "getUser404", message: "No se encontró el usuario especificado para obtener."}
+        default:
+          description: Error inesperado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: true
+                  message:
+                    type: string
+                    default: "Error inesperado."
+                  content:
+                    default: {code: "ERRIN-26", message: "Error inesperado al tratar de obtener un usuario."}
+      security:
+        - bearerAuth: []
     patch:
       tags:
         - User
@@ -90,42 +212,171 @@ paths:
               $ref: '#/components/schemas/UserUpdateDTO'
       responses:
         '200':
-          description: Usuario actualizado satisfactoriamente.
+          description: Usuario actualizado
           content:
             application/json:
               schema:
-                type: string
-                default: "Usuario actualizado satisfactoriamente."
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: false
+                  message:
+                    type: string
+                    default: "Usuario actualizado satisfactoriamente."
+                  content:
+                    default: null
         '400':
-          description: Error en la solicitud.
+          description: Error en la solicitud
           content:
             application/json:
               schema:
-                default: {code: "GTU04-GTU05-1", message: "Error en la solicitud al tratar de actualizar un usuario."}
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: true
+                  message:
+                    type: string
+                    default: "Error en la solicitud."
+                  content:
+                    default: {code: "GTU04-GTU05-1", message: "Error en la solicitud al tratar de actualizar un usuario."}
         '401':
           description: No autorizado
           content:
             application/json:
               schema:
-                default: {code: "GTU04-GTU05-2", message: "No autorizado para esta acción. (JWT ausente)"}
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: true
+                  message:
+                    type: string
+                    default: "No autorizado."
+                  content:
+                    default: {code: "GTU04-GTU05-2", message: "No autorizado para esta acción. (JWT ausente)"}
         '403':
           description: Prohibido
           content:
             application/json:
               schema:
-                default: {code: "GTU04-GTU05-3", message: "Prohibido para esta acción (JWT inválido o sin permisos)"}
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: true
+                  message:
+                    type: string
+                    default: "Prohibido."
+                  content:
+                    default: {code: "GTU04-GTU05-3", message: "Prohibido para esta acción (JWT inválido o sin permisos)"}
         '404':
-          description: Usuario no encontrado.
+          description: Usuario no encontrado
           content:
             application/json:
               schema:
-                default: {code: "GTU04-GTU05-4", message: "No se encontró el usuario especificado para actualizar."}
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: true
+                  message:
+                    type: string
+                    default: "Usuario no encontrado."
+                  content:
+                    default: {code: "GTU04-GTU05-4", message: "No se encontró el usuario especificado para actualizar."}
         default:
           description: Error inesperado
           content:
             application/json:
               schema:
-                default: {code: "ERRIN-02", message: "Error inesperado al tratar de actualizar el usuario."}
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: true
+                  message:
+                    type: string
+                    default: "Error inesperado."
+                  content:
+                    default: {code: "ERRIN-02", message: "Error inesperado al tratar de actualizar el usuario."}
+      security:
+        - bearerAuth: []
+    delete:
+      tags:
+        - User
+      summary: Eliminar un usuario existente (soft delete)
+      description: Elimina un usuario existente identificado por su UUID de manera suave, cambiándole el estado a "INACTIVE".
+      operationId: deleteUser
+      parameters:
+        - name: user_uuid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Usuario cambiado de estado a "INACTIVE" satisfactoriamente.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: false
+                  message:
+                    type: string
+                    default: "Usuario eliminado satisfactoriamente."
+                  content:
+                    default: null
+        '401':
+          description: No autorizado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: true
+                  message:
+                    type: string
+                    default: "No autorizado."
+                  content:
+                    default: {code: "deleteUsers401", message: "No está autorizado para eliminar un usuario."}
+        '403':
+          description: Prohibido
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: true
+                  message:
+                    type: string
+                    default: "Prohibido."
+                  content:
+                    default: {code: "deleteUsers403", message: "No tiene permisos para eliminar un usuario."}
+        default:
+          description: Error inesperado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: true
+                  message:
+                    type: string
+                    default: "Error inesperado."
+                  content:
+                    default: { code: "ERRIN-23", message: "Error inesperado al tratar de eliminar el usuario." }
       security:
         - bearerAuth: []
   /api/users/{user_uuid}/favorites:
@@ -145,36 +396,82 @@ paths:
           description: UUID del usuario cuyos alojamientos favoritos se desean obtener.
       responses:
         '200':
-          description: Alojamientos favoritos obtenidos satisfactoriamente.
+          description: Alojamientos favoritos obtenidos
           content:
             application/json:
               schema:
-                type: string
-                default: "Alojamientos favoritos obtenidos satisfactoriamente."
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: false
+                  message:
+                    type: string
+                    default: "Alojamientos favoritos obtenidos satisfactoriamente."
+                  content:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/LodgingDTO'
         '401':
           description: No autorizado
           content:
             application/json:
               schema:
-                default: {code: "OPC10-1", message: "No autorizado para esta acción. (JWT ausente)"}
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: true
+                  message:
+                    type: string
+                    default: "No autorizado."
+                  content:
+                    default: {code: "OPC10-1", message: "No autorizado para esta acción. (JWT ausente)"}
         '403':
           description: Prohibido
           content:
             application/json:
               schema:
-                default: {code: "OPC10-2", message: "Prohibido para esta acción (JWT inválido o sin permisos)"}
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: true
+                  message:
+                    type: string
+                    default: "Prohibido."
+                  content:
+                    default: {code: "OPC10-2", message: "Prohibido para esta acción (JWT inválido o sin permisos)"}
         '404':
           description: Usuario no encontrado.
           content:
             application/json:
               schema:
-                default: {code: "RYA04-3", message: "No se encontró el usuario especificado para obtener sus alojamientos favoritos."}
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: true
+                  message:
+                    type: string
+                    default: "Usuario no encontrado."
+                  content:
+                    default: {code: "RYA04-3", message: "No se encontró el usuario especificado para obtener sus alojamientos favoritos."}
         default:
           description: Error inesperado
           content:
             application/json:
               schema:
-                default: {code: "ERRIN-03", message: "Error inesperado al tratar de obtener los alojamientos favoritos."}
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: true
+                  message:
+                    type: string
+                    default: "Error inesperado."
+                  content:
+                    default: {code: "ERRIN-03", message: "Error inesperado al tratar de obtener los alojamientos favoritos."}
       security:
         - bearerAuth: []
   /api/users/{user_uuid}/recommendations:
@@ -198,32 +495,166 @@ paths:
           content:
             application/json:
               schema:
-                type: string
-                default: "Alojamientos recomendados obtenidos satisfactoriamente."
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: false
+                  message:
+                    type: string
+                    default: "Alojamientos recomendados obtenidos satisfactoriamente."
+                  content:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/LodgingDTO'
         '401':
           description: No autorizado
           content:
             application/json:
               schema:
-                default: {code: "OPC10-1", message: "No autorizado para esta acción. (JWT ausente)"}
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: true
+                  message:
+                    type: string
+                    default: "No autorizado."
+                  content:
+                    default: {code: "OPC10-1", message: "No autorizado para esta acción. (JWT ausente)"}
         '403':
           description: Prohibido
           content:
             application/json:
               schema:
-                default: {code: "OPC10-2", message: "Prohibido para esta acción (JWT inválido o sin permisos)"}
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: true
+                  message:
+                    type: string
+                    default: "Prohibido."
+                  content:
+                    default: {code: "OPC10-2", message: "Prohibido para esta acción (JWT inválido o sin permisos)"}
         '404':
           description: Usuario no encontrado.
           content:
             application/json:
               schema:
-                default: {code: "OPC10-3", message: "No se encontró el usuario especificado para obtener sus recomendaciones."}
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: true
+                  message:
+                    type: string
+                    default: "Usuario no encontrado."
+                  content:
+                    default: {code: "OPC10-3", message: "No se encontró el usuario especificado para obtener sus recomendaciones."}
         default:
           description: Error inesperado
           content:
             application/json:
               schema:
-                default: {code: "ERRIN-04", message: "Error inesperado al tratar de obtener las recomendaciones."}
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: true
+                  message:
+                    type: string
+                    default: "Error inesperado."
+                  content:
+                    default: {code: "ERRIN-04", message: "Error inesperado al tratar de obtener las recomendaciones."}
+      security:
+        - bearerAuth: []
+  /api/users/{user_uuid}/password:
+    patch:
+      tags:
+        - User
+      summary: Cambiar la contraseña de un usuario
+      description: Permite a un usuario cambiar su contraseña actual, cumpliendo con el requisito REQ-GTU-06.
+      operationId: updateUserPassword
+      parameters:
+        - name: user_uuid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: UUID del usuario que desea cambiar su contraseña.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                codeOrPassword:
+                  type: string
+                  example: Pass123
+      responses:
+        '200':
+          description: Contraseña restablecida
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: false
+                  message:
+                    type: string
+                    default: "Contraseña restablecida satisfactoriamente."
+                  content:
+                    default: null
+        '401':
+          description: No autorizado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: true
+                  message:
+                    type: string
+                    default: "No autorizado."
+                  content:
+                    default: {code: "GTU06-GTU07-1", message: "No autorizado para esta acción. (JWT ausente)"}
+        '403':
+          description: Prohibido
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: true
+                  message:
+                    type: string
+                    default: "Prohibido."
+                  content:
+                    default: {code: "GTU06-GTU07-2", message: "Prohibido para esta acción (JWT inválido o sin permisos)"}
+        '422':
+          description: Error de validación
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: true
+                  message:
+                    type: string
+                    default: "Error de validación."
+                  content:
+                    default: {code: "GTU06-GTU07-3", message: "El código o la contraseña actual enviada no coincide."}
       security:
         - bearerAuth: []
   /api/auth/user/register:
@@ -245,76 +676,61 @@ paths:
           content:
             application/json:
               schema:
-                type: string
-                default: "Usuario creado satisfactoriamente."
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: false
+                  message:
+                    type: string
+                    default: "Usuario creado satisfactoriamente."
+                  content:
+                    default: null
         '400':
-          description: Error en la solicitud.
+          description: Error en la solicitud
           content:
             application/json:
               schema:
-                default: {code: "RYA01-1", message: "Error en la solicitud al tratar de crear un usuario."}
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: true
+                  message:
+                    type: string
+                    default: "Error en la solicitud."
+                  content:
+                    default: {code: "RYA01-1", message: "Error en la solicitud al tratar de crear un usuario."}
         '409':
           description: Conflicto - Usuario ya existe.
           content:
             application/json:
               schema:
-                default: {code: "RYA01-2", message: "El usuario ya se encuentra registrado."}
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: true
+                  message:
+                    type: string
+                    default: "Conflicto - Usuario ya existe."
+                  content:
+                    default: {code: "RYA01-2", message: "El usuario ya se encuentra registrado."}
         default:
           description: Error inesperado
           content:
             application/json:
               schema:
-                default: {code: "ERRIN-05", message: "Error inesperado al tratar de crear un usuario."}
-  /api/users/{user_uuid}/password:
-    patch:
-      tags:
-        - User
-      summary: Cambiar la contraseña de un usuario
-      description: Permite a un usuario cambiar su contraseña actual, cumpliendo con el requisito REQ-GTU-06 y REQ-GTU-07.
-      operationId: updateUserPassword
-      parameters:
-        - name: user_uuid
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-          description: UUID del usuario que desea cambiar su contraseña.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: string
-              example: Pass123 | 102934
-      responses:
-        '200':
-          description: Contraseña restablecida satisfactoriamente.
-          content:
-            application/json:
-              schema:
-                type: string
-                default: "Contraseña restablecida satisfactoriamente."
-        '401':
-          description: No autorizado
-          content:
-            application/json:
-              schema:
-                default: {code: "GTU06-GTU07-1", message: "No autorizado para esta acción. (JWT ausente)"}
-        '403':
-          description: Prohibido
-          content:
-            application/json:
-              schema:
-                default: {code: "GTU06-GTU07-2", message: "Prohibido para esta acción (JWT inválido o sin permisos)"}
-        '422':
-          description: Error de validación
-          content:
-            application/json:
-              schema:
-                default: {code: "GTU06-GTU07-3", message: "El código o la contraseña actual enviada no coincide."}
-      security:
-        - bearerAuth: []
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: true
+                  message:
+                    type: string
+                    default: "Error inesperado."
+                  content:
+                    default: {code: "ERRIN-05", message: "Error inesperado al tratar de crear un usuario."}
   /api/auth/user/login/{mode}:
     post:
       tags:
@@ -338,13 +754,19 @@ paths:
               $ref: '#/components/schemas/UserLoginDTO'
       responses:
         '200':
-          description: Autenticación exitosa, token JWT generado.
+          description: Autenticación exitosa
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  token:
+                  error:
+                    type: boolean
+                    default: false
+                  message:
+                    type: string
+                    default: "Autenticación exitosa, token JWT generado."
+                  content:
                     type: string
                     description: Token JWT para autenticación
         '400':
@@ -352,13 +774,31 @@ paths:
           content:
             application/json:
               schema:
-                default: {code: "RYA01-1", message: "Error en la solitud al tratar de iniciar sesión."}
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: true
+                  message:
+                    type: string
+                    default: "Credenciales inválidas."
+                  content:
+                    default: {code: "RYA01-1", message: "Error en la solitud al tratar de iniciar sesión."}
         default:
           description: Error inesperado
           content:
             application/json:
               schema:
-                default: {code: "ERRIN-06", message: "Error inesperado al tratar de iniciar sesión."}
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: true
+                  message:
+                    type: string
+                    default: "Error inesperado."
+                  content:
+                    default: {code: "ERRIN-06", message: "Error inesperado al tratar de iniciar sesión."}
   /api/auth/host/register:
     post:
       tags:
@@ -378,20 +818,46 @@ paths:
           content:
             application/json:
               schema:
-                type: string
-                default: "Anfitrión creado satisfactoriamente."
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: false
+                  message:
+                    type: string
+                    default: "Anfitrión creado satisfactoriamente."
+                  content:
+                    default: null                
         '400':
-          description: Error en la solicitud.
+          description: Error en la solicitud
           content:
             application/json:
               schema:
-                default: {code: "RYA08-1", message: "Error en la solicitud al tratar de crear un anfitrión."}
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: true
+                  message:
+                    type: string
+                    default: "Error en la solicitud."
+                  content:
+                    default: {code: "RYA08-1", message: "Error en la solicitud al tratar de crear un anfitrión."}
         default:
           description: Error inesperado
           content:
             application/json:
               schema:
-                default: {code: "ERRIN-07", message: "Error inesperado al tratar de crear un anfitrión."}
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: true
+                  message:
+                    type: string
+                    default: "Error inesperado."
+                  content:
+                    default: {code: "ERRIN-07", message: "Error inesperado al tratar de crear un anfitrión."}
   /api/auth/host/login/{mode}:
     post:
       tags:
@@ -415,27 +881,51 @@ paths:
               $ref: '#/components/schemas/UserLoginDTO'
       responses:
         '200':
-          description: Autenticación exitosa, token JWT generado.
+          description: Autenticación exitosa
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  token:
+                  error:
+                    type: boolean
+                    default: false
+                  message:
+                    type: string
+                    default: "Autenticación exitosa, token JWT generado."
+                  content:
                     type: string
                     description: Token JWT para autenticación
         '400':
-          description: Credenciales inválidas.
+          description: Credenciales inválidas
           content:
             application/json:
               schema:
-                default: {code: "RYA08-2", message: "Error en la solitud al tratar de iniciar sesión."}
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: true
+                  message:
+                    type: string
+                    default: "Credenciales inválidas."
+                  content:
+                    default: {code: "RYA08-2", message: "Error en la solitud al tratar de iniciar sesión."}
         default:
           description: Error inesperado
           content:
             application/json:
               schema:
-                default: {code: "ERRIN-08", message: "Error inesperado al tratar de iniciar sesión."}
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: true
+                  message:
+                    type: string
+                    default: "Error inesperado."
+                  content:
+                    default: {code: "ERRIN-08", message: "Error inesperado al tratar de iniciar sesión."}
   /api/auth/reset_password:
     post:
       tags:
@@ -461,26 +951,128 @@ paths:
           content:
             application/json:
               schema:
-                type: string
-                default: "Solicitud de restablecimiento de contraseña enviada satisfactoriamente."
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: false
+                  message:
+                    type: string
+                    default: "Solicitud de restablecimiento de contraseña enviada satisfactoriamente."
+                  content:
+                    default: null
         '400':
-          description: Error en la solicitud.
+          description: Error en la solicitud
           content:
             application/json:
               schema:
-                default: {code: "GTU06-1", message: "Error en la solicitud al tratar de solicitar el restablecimiento de contraseña."}
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: true
+                  message:
+                    type: string
+                    default: "Error en la solicitud."
+                  content:
+                    default: {code: "GTU06-1", message: "Error en la solicitud al tratar de solicitar el restablecimiento de contraseña."}
         '404':
-          description: Usuario no encontrado.
+          description: Usuario no encontrado
           content:
             application/json:
               schema:
-                default: {code: "GTU06-2", message: "No se encontró el usuario especificado para solicitar el restablecimiento de contraseña."}
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: true
+                  message:
+                    type: string
+                    default: "Usuario no encontrado."
+                  content:
+                    default: {code: "GTU06-2", message: "No se encontró el usuario especificado para solicitar el restablecimiento de contraseña."}
         default:
           description: Error inesperado
           content:
             application/json:
               schema:
-                default: {code: "ERRIN-09", message: "Error inesperado al tratar de solicitar el restablecimiento de contraseña."}
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: true
+                  message:
+                    type: string
+                    default: "Error inesperado."
+                  content:
+                    default: {code: "ERRIN-09", message: "Error inesperado al tratar de solicitar el restablecimiento de contraseña."}
+    patch:
+      tags:
+        - Auth
+      summary: Actualizar contraseña de usuario que lo solicitó anteriormente
+      description: Actualiza la contraseña de un usuario que solicitó el cambio anteriormente.
+      operationId: updatePasswordWithCode
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                code:
+                  type: string
+                newPassword:
+                  type: string
+                  format: password
+      responses:
+        '200':
+          description: Contraseña restablecida
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: false
+                  message:
+                    type: string
+                    default: "Contraseña restablecida satisfactoriamente."
+                  content:
+                    default: null
+        '422':
+          description: Error de validación
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: true
+                  message:
+                    type: string
+                    default: "Error de validación."
+                  content:
+                    default: {code: "GTU07-1", message: "El código actual enviado no coincide."}
+        default:
+          description: Error inesperado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: true
+                  message:
+                    type: string
+                    default: "Error inesperado."
+                  content:
+                    default: {code: "ERRIN-24", message: "Error inesperado al tratar de restablecer la contraseña"}
   /api/lodgings:
     get:
       tags:
@@ -515,28 +1107,47 @@ paths:
           schema:
             type: string
             format: date
-          description: Filtrar alojamientos por fecha de entrada (check-in) en formato AAAA-MM-DD
+          description: Filtrar alojamientos por fecha de entrada (check-in) en formato AAAA-MM-DD HH:mm
         - name: checkOut
           in: query
           required: false
           schema:
             type: string
             format: date
-          description: Filtrar alojamientos por fecha de salida (check-out) en formato AAAA-MM-DD
+          description: Filtrar alojamientos por fecha de salida (check-out) en formato AAAA-MM-DD HH:mm
       responses:
         '200':
           description: Alojamientos obtenidos satisfactoriamente.
           content:
             application/json:
               schema:
-                type: string
-                default: "Alojamientos obtenidos satisfactoriamente."
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: false
+                  message:
+                    type: string
+                    default: "Alojamientos obtenidos satisfactoriamente."
+                  content:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/LodgingDTO'
         default:
           description: Error inesperado
           content:
             application/json:
               schema:
-                default: {code: "ERRIN-10", message: "Error inesperado al tratar de obtener los alojamientos."}
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: true
+                  message:
+                    type: string
+                    default: "Error inesperado."
+                  content:
+                    default: {code: "ERRIN-10", message: "Error inesperado al tratar de obtener los alojamientos."}
     post:
       tags:
         - Lodging
@@ -553,38 +1164,183 @@ paths:
           content:
             application/json:
               schema:
-                type: string
-                default: "Alojamiento creado satisfactoriamente."
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: false
+                  message:
+                    type: string
+                    default: "Alojamiento creado satisfactoriamente."
+                  content:
+                    default: null                
         '400':
-          description: Error en la solicitud.
+          description: Error en la solicitud
           content:
             application/json:
               schema:
-                default: {code: "RYA10-1", message: "Error en la solicitud al crear un alojamiento."}
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: true
+                  message:
+                    type: string
+                    default: "Error en la solicitud."
+                  content:
+                    default: {code: "RYA10-1", message: "Error en la solicitud al crear un alojamiento."}
         '401':
           description: No autorizado
           content:
             application/json:
               schema:
-                default: {code: "RYA10-2", message: "No autorizado para esta acción. (JWT ausente)"}
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: true
+                  message:
+                    type: string
+                    default: "No autorizado."
+                  content:
+                    default: {code: "RYA10-2", message: "No autorizado para esta acción. (JWT ausente)"}
         '403':
           description: Prohibido
           content:
             application/json:
               schema:
-                default: {code: "RYA10-3", message: "Prohibido para esta acción (JWT inválido o sin permisos)"}
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: true
+                  message:
+                    type: string
+                    default: "Prohibido."
+                  content:
+                    default: {code: "RYA10-3", message: "Prohibido para esta acción (JWT inválido o sin permisos)"}
         '409':
           description: Conflicto - Alojamiento ya existe.
           content:
             application/json:
               schema:
-                default: {code: "RYA10-4", message: "El alojamiento ya se encuentra registrado."}
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: true
+                  message:
+                    type: string
+                    default: "Conflicto - Alojamiento ya existe."
+                  content:
+                    default: {code: "RYA10-4", message: "El alojamiento ya se encuentra registrado."}
         default:
           description: Error inesperado
           content:
             application/json:
               schema:
-                default: {code: "ERRIN-11", message: "Error inesperado al tratar de crear un alojamiento."}
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: true
+                  message:
+                    type: string
+                    default: "Error inesperado."
+                  content:
+                    default: {code: "ERRIN-11", message: "Error inesperado al tratar de crear un alojamiento."}
+      security:
+        - bearerAuth: []
+  /api/lodgings/{lodging_uuid}:
+    get:
+      tags:
+        - Lodging
+      summary: Obtener un alojamiento
+      description: Obtiene un alojamiento específico identificado por su UUID.
+      operationId: getLodging
+      parameters:
+        - name: lodging_uuid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Alojamiento obtenido
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: false
+                  message:
+                    type: string
+                    default: "Alojamiento obtenido satisfactoriamente."
+                  content:
+                    $ref: '#/components/schemas/LodgingDTO'
+        '401':
+          description: No autorizado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: true
+                  message:
+                    type: string
+                    default: "No autorizado."
+                  content:
+                    default: { code: "getLodging401", message: "No autorizado para esta acción. (JWT ausente)" }
+        '403':
+          description: Prohibido
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: true
+                  message:
+                    type: string
+                    default: "Prohibido."
+                  content:
+                    default: { code: "getLodging403", message: "Prohibido para esta acción (JWT inválido o sin permisos)" }
+        '404':
+          description: Alojamiento no encontrado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: true
+                  message:
+                    type: string
+                    default: "Alojamiento no encontrado."
+                  content:
+                    default: {code: "getLodging404", message: "No se encontró el alojamiento especificado para obtener."}
+        default:
+          description: Error inesperado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: true
+                  message:
+                    type: string
+                    default: "Error inesperado."
+                  content:
+                    default: {code: "ERRIN-27", message: "Error inesperado al tratar de obtener un alojamiento."}
       security:
         - bearerAuth: []
     put:
@@ -593,6 +1349,13 @@ paths:
       summary: Actualizar un alojamiento existente
       description: Actualiza los detalles de un alojamiento existente identificado por su UUID.
       operationId: updateLodging
+      parameters:
+        - name: lodging_uuid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
       requestBody:
         required: true
         content:
@@ -601,45 +1364,97 @@ paths:
               $ref: '#/components/schemas/LodgingDTO'
       responses:
         '200':
-          description: Alojamiento actualizado satisfactoriamente.
+          description: Alojamiento actualizado
           content:
             application/json:
               schema:
-                type: string
-                default: "Alojamiento actualizado satisfactoriamente."
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: false
+                  message:
+                    type: string
+                    default: "Alojamiento actualizado satisfactoriamente."
+                  content:
+                    default: null
         '400':
           description: Error en la solicitud.
           content:
             application/json:
               schema:
-                default: {code: "RYA10-5", message: "Error en la solicitud al actualizar un alojamiento."}
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: true
+                  message:
+                    type: string
+                    default: "Error en la solicitud."
+                  content:
+                    default: {code: "RYA10-5", message: "Error en la solicitud al actualizar un alojamiento."}
         '401':
           description: No autorizado
           content:
             application/json:
               schema:
-                default: {code: "RYA10-6", message: "No autorizado para esta acción. (JWT ausente)"}
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: true
+                  message:
+                    type: string
+                    default: "No autorizado."
+                  content:
+                    default: {code: "RYA10-6", message: "No autorizado para esta acción. (JWT ausente)"}
         '403':
           description: Prohibido
           content:
             application/json:
               schema:
-                default: {code: "RYA10-7", message: "Prohibido para esta acción (JWT inválido o sin permisos)"}
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: true
+                  message:
+                    type: string
+                    default: "Prohibido."
+                  content:
+                    default: {code: "RYA10-7", message: "Prohibido para esta acción (JWT inválido o sin permisos)"}
         '404':
-          description: Alojamiento no encontrado.
+          description: Alojamiento no encontrado
           content:
             application/json:
               schema:
-                default: {code: "RYA10-8", message: "No se encontró el alojamiento especificado para actualizar."}
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: true
+                  message:
+                    type: string
+                    default: "Alojamiento no encontrado."
+                  content:
+                    default: {code: "RYA10-8", message: "No se encontró el alojamiento especificado para actualizar."}
         default:
           description: Error inesperado
           content:
             application/json:
               schema:
-                default: {code: "ERRIN-12", message: "Error inesperado al tratar de actualizar el alojamiento."}
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: true
+                  message:
+                    type: string
+                    default: "Error inesperado."
+                  content:
+                    default: {code: "ERRIN-12", message: "Error inesperado al tratar de actualizar el alojamiento."}
       security:
         - bearerAuth: []
-  /api/lodgings/{lodging_uuid}:
     delete:
       tags:
         - Lodging
@@ -656,36 +1471,80 @@ paths:
           description: UUID del alojamiento que se desea cambiarle el estado a "DELETED".
       responses:
         '200':
-          description: Alojamiento cambiado de estado a "DELETED" satisfactoriamente.
+          description: Alojamiento cambiado de estado a "DELETED"
           content:
             application/json:
               schema:
-                type: string
-                default: "Alojamiento eliminado satisfactoriamente."
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: false
+                  message:
+                    type: string
+                    default: "Alojamiento eliminado satisfactoriamente."
+                  content:
+                    default: null
         '401':
           description: No autorizado
           content:
             application/json:
               schema:
-                default: {code: "RYA11-1", message: "No autorizado para esta acción. (JWT ausente)"}
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: true
+                  message:
+                    type: string
+                    default: "No autorizado."
+                  content:
+                    default: {code: "RYA11-1", message: "No autorizado para esta acción. (JWT ausente)"}
         '403':
           description: Prohibido
           content:
             application/json:
               schema:
-                default: {code: "RYA11-2", message: "Prohibido para esta acción (JWT inválido o sin permisos)"}
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: true
+                  message:
+                    type: string
+                    default: "Prohibido."
+                  content:
+                    default: {code: "RYA11-2", message: "Prohibido para esta acción (JWT inválido o sin permisos)"}
         '404':
-          description: Alojamiento no encontrado.
+          description: Alojamiento no encontrado
           content:
             application/json:
               schema:
-                default: {code: "RYA11-3", message: "No se encontró el alojamiento especificado para eliminar."}
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: true
+                  message:
+                    type: string
+                    default: "Alojamiento no encontrado."
+                  content:
+                    default: {code: "RYA11-3", message: "No se encontró el alojamiento especificado para eliminar."}
         default:
           description: Error inesperado
           content:
             application/json:
               schema:
-                default: {code: "ERRIN-13", message: "Error inesperado al tratar de eliminar el alojamiento."}
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: true
+                  message:
+                    type: string
+                    default: "Error inesperado."
+                  content:
+                    default: {code: "ERRIN-13", message: "Error inesperado al tratar de eliminar el alojamiento."}
       security:
         - bearerAuth: []
   /api/lodgings/{search}:
@@ -704,18 +1563,37 @@ paths:
           description: Término de búsqueda para filtrar alojamientos por nombre o descripción.
       responses:
         '200':
-          description: Alojamientos encontrados satisfactoriamente.
+          description: Alojamientos encontrados
           content:
             application/json:
               schema:
-                type: string
-                default: "Alojamientos encontrados satisfactoriamente."
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: false
+                  message:
+                    type: string
+                    default: "Alojamientos obtenidos satisfactoriamente."
+                  content:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/LodgingDTO'
         default:
           description: Error inesperado
           content:
             application/json:
               schema:
-                default: {code: "ERRIN-14", message: "Error inesperado al tratar de buscar los alojamientos."}
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: true
+                  message:
+                    type: string
+                    default: "Error inesperado."
+                  content:
+                    default: {code: "ERRIN-14", message: "Error inesperado al tratar de buscar los alojamientos."}
   /api/lodgings/{lodging_uuid}/metrics:
     get:
       tags:
@@ -737,32 +1615,76 @@ paths:
           content:
             application/json:
               schema:
-                type: string
-                default: "Métricas obtenidas satisfactoriamente."
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: false
+                  message:
+                    type: string
+                    default: "Métricas obtenidas satisfactoriamente."
+                  content:
+                    $ref: '#/components/schemas/LodgingMetricsDTO'
         '401':
           description: No autorizado
           content:
             application/json:
               schema:
-                default: {code: "RYA12-1", message: "No autorizado para esta acción. (JWT ausente)"}
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: true
+                  message:
+                    type: string
+                    default: "No autorizado."
+                  content:
+                    default: {code: "RYA12-1", message: "No autorizado para esta acción. (JWT ausente)"}
         '403':
           description: Prohibido
           content:
             application/json:
               schema:
-                default: {code: "RYA12-2", message: "Prohibido para esta acción (JWT inválido o sin permisos)"}
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: true
+                  message:
+                    type: string
+                    default: "Prohibido."
+                  content:
+                    default: {code: "RYA12-2", message: "Prohibido para esta acción (JWT inválido o sin permisos)"}
         '404':
-          description: Alojamiento no encontrado.
+          description: Alojamiento no encontrado
           content:
             application/json:
               schema:
-                default: {code: "RYA12-3", message: "No se encontró el alojamiento especificado para obtener sus métricas."}
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: true
+                  message:
+                    type: string
+                    default: "Alojamiento no encontrado."
+                  content:
+                    default: {code: "RYA12-3", message: "No se encontró el alojamiento especificado para obtener sus métricas."}
         default:
           description: Error inesperado
           content:
             application/json:
               schema:
-                default: {code: "ERRIN-15", message: "Error inesperado al tratar de obtener las métricas."}
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: true
+                  message:
+                    type: string
+                    default: "Error inesperado."
+                  content:
+                    default: {code: "ERRIN-15", message: "Error inesperado al tratar de obtener las métricas."}
       security:
         - bearerAuth: []
   /api/lodgings/{host_uuid}:
@@ -782,36 +1704,82 @@ paths:
           description: UUID del anfitrión para el cual se están obteniendo los alojamientos.
       responses:
         '200':
-          description: Alojamientos obtenidos satisfactoriamente.
+          description: Alojamientos obtenidos
           content:
             application/json:
               schema:
-                type: string
-                default: "Alojamientos obtenidos satisfactoriamente."
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: false
+                  message:
+                    type: string
+                    default: "Alojamientos obtenidos satisfactoriamente."
+                  content:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/LodgingDTO'
         '401':
           description: No autorizado
           content:
             application/json:
               schema:
-                default: {code: "RYA09-1", message: "No autorizado para esta acción. (JWT ausente)"}
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: true
+                  message:
+                    type: string
+                    default: "No autorizado."
+                  content:
+                    default: {code: "RYA09-1", message: "No autorizado para esta acción. (JWT ausente)"}
         '403':
           description: Prohibido
           content:
             application/json:
               schema:
-                default: {code: "RYA09-2", message: "Prohibido para esta acción (JWT inválido o sin permisos)"}
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: true
+                  message:
+                    type: string
+                    default: "Prohibido."
+                  content:
+                    default: {code: "RYA09-2", message: "Prohibido para esta acción (JWT inválido o sin permisos)"}
         '404':
           description: Anfitrión no encontrado.
           content:
             application/json:
               schema:
-                default: {code: "RYA09-3", message: "No se ha encontrado el anfitrión especificado para los alojamientos."}
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: true
+                  message:
+                    type: string
+                    default: "Anifrión no encontrado."
+                  content:
+                    default: {code: "RYA09-3", message: "No se ha encontrado el anfitrión especificado para los alojamientos."}
         default:
           description: Error inesperado
           content:
             application/json:
               schema:
-                default: {code: "ERRIN-16", message: "Error inesperado al tratar de obtener los alojamientos."}
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: true
+                  message:
+                    type: string
+                    default: "Error inesperado."
+                  content:
+                    default: {code: "ERRIN-16", message: "Error inesperado al tratar de obtener los alojamientos."}
       security:
         - bearerAuth: []
   /api/lodgings/{lodging_uuid}/comments:
@@ -836,62 +1804,120 @@ paths:
             schema:
               type: object
               properties:
-                userUUID:
-                  type: string
-                  format: uuid
                 comment:
                   type: string
                 valuation:
                   type: integer
                   format: float
               required:
-                - userUuid
                 - comment
                 - valuation
       responses:
         '201':
-          description: Comentario agregado satisfactoriamente.
+          description: Comentario agregado
           content:
             application/json:
               schema:
-                type: string
-                default: "Comentario agregado satisfactoriamente."
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: false
+                  message:
+                    type: string
+                    default: "Comentario agregado satisfactoriamente."
+                  content:
+                    default: null
         '400':
-          description: Error en la solicitud.
+          description: Error en la solicitud
           content:
             application/json:
               schema:
-                default: {code: "RYA05-1", message: "Error en la solicitud al tratar de agregar un comentario."}
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: true
+                  message:
+                    type: string
+                    default: "Error en la solicitud."
+                  content:
+                    default: {code: "RYA05-1", message: "Error en la solicitud al tratar de agregar un comentario."}
         '401':
           description: No autorizado
           content:
             application/json:
               schema:
-                default: {code: "RYA05-2", message: "No autorizado para esta acción. (JWT ausente)"}
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: true
+                  message:
+                    type: string
+                    default: "No autorizado."
+                  content:
+                    default: {code: "RYA05-2", message: "No autorizado para esta acción. (JWT ausente)"}
         '403':
           description: Prohibido
           content:
             application/json:
               schema:
-                default: {code: "RYA05-3", message: "Prohibido para esta acción (JWT inválido o sin permisos)"}
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: true
+                  message:
+                    type: string
+                    default: "Prohibido."
+                  content:
+                    default: {code: "RYA05-3", message: "Prohibido para esta acción (JWT inválido o sin permisos)"}
         '404':
-          description: Alojamiento no encontrado.
+          description: Alojamiento no encontrado
           content:
             application/json:
               schema:
-                default: {code: "RYA05-4", message: "No se encontró el alojamiento especificado para agregar el comentario."}
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: true
+                  message:
+                    type: string
+                    default: "Alojamiento no encontrado."
+                  content:
+                    default: {code: "RYA05-4", message: "No se encontró el alojamiento especificado para agregar el comentario."}
         '409':
-          description: Conflicto - Comentario ya existe.
+          description: Conflicto - Comentario ya existe
           content:
             application/json:
               schema:
-                default: {code: "RYA05-5", message: "Usted ya ha comentado en este alojamiento."}
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: true
+                  message:
+                    type: string
+                    default: "Conflicto - Comentario ya existe."
+                  content:
+                    default: {code: "RYA05-5", message: "Usted ya ha comentado en este alojamiento."}
         default:
           description: Error inesperado
           content:
             application/json:
               schema:
-                default: {code: "ERRIN-17", message: "Error inesperado al tratar de agregar el comentario."}
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: true
+                  message:
+                    type: string
+                    default: "Error inesperado."
+                  content:
+                    default: {code: "ERRIN-17", message: "Error inesperado al tratar de agregar el comentario."}
       security:
         - bearerAuth: []
   /api/lodgings/{lodging_uuid}/comments/{user_uuid}/host_response:
@@ -928,38 +1954,91 @@ paths:
           content:
             application/json:
               schema:
-                type: string
-                default: "Respuesta al comentario agregada satisfactoriamente."
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: false
+                  message:
+                    type: string
+                    default: "Respuesta al comentario agregada satisfactoriamente."
+                  content:
+                    default: null
         '400':
-          description: Error en la solicitud.
+          description: Error en la solicitud
           content:
             application/json:
               schema:
-                default: {code: "RYA07-1", message: "Error en la solicitud al tratar de responder a un comentario."}
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: true
+                  message:
+                    type: string
+                    default: "Error en la solicitud."
+                  content:
+                    default: {code: "RYA07-1", message: "Error en la solicitud al tratar de responder a un comentario."}
         '401':
           description: No autorizado
           content:
             application/json:
               schema:
-                default: {code: "RYA07-2", message: "No autorizado para esta acción. (JWT ausente)"}
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: true
+                  message:
+                    type: string
+                    default: "No autorizado."
+                  content:
+                    default: {code: "RYA07-2", message: "No autorizado para esta acción. (JWT ausente)"}
         '403':
           description: Prohibido
           content:
             application/json:
               schema:
-                default: {code: "RYA07-3", message: "Prohibido para esta acción (JWT inválido o sin permisos)"}
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: true
+                  message:
+                    type: string
+                    default: "Prohibido."
+                  content:
+                    default: {code: "RYA07-3", message: "Prohibido para esta acción (JWT inválido o sin permisos)"}
         '404':
-          description: Alojamiento o comentario no encontrado.
+          description: Alojamiento o comentario no encontrado
           content:
             application/json:
               schema:
-                default: {code: "RYA07-4", message: "No se encontró el alojamiento o el comentario especificado para agregar la respuesta."}
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: true
+                  message:
+                    type: string
+                    default: "Alojamiento o comentario no encontrado."
+                  content:
+                    default: {code: "RYA07-4", message: "No se encontró el alojamiento o el comentario especificado para agregar la respuesta."}
         default:
           description: Error inesperado
           content:
             application/json:
               schema:
-                default: {code: "ERRIN-18", message: "Error inesperado al tratar de agregar la respuesta al comentario."}
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: true
+                  message:
+                    type: string
+                    default: "Error inesperado."
+                  content:
+                    default: {code: "ERRIN-18", message: "Error inesperado al tratar de agregar la respuesta al comentario."}
       security:
         - bearerAuth: []
   /api/reservations/{lodging_uuid}:
@@ -1004,32 +2083,78 @@ paths:
           content:
             application/json:
               schema:
-                type: string
-                default: "Reservas obtenidas satisfactoriamente."
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: false
+                  message:
+                    type: string
+                    default: "Reservas obtenidas satisfactoriamente."
+                  content:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ReservationDTO'
         '401':
           description: No autorizado
           content:
             application/json:
               schema:
-                default: {code: "RYA13-1", message: "No autorizado para esta acción. (JWT ausente)"}
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: true
+                  message:
+                    type: string
+                    default: "No autorizado."
+                  content:
+                    default: {code: "RYA13-1", message: "No autorizado para esta acción. (JWT ausente)"}
         '403':
           description: Prohibido
           content:
             application/json:
               schema:
-                default: {code: "RYA13-2", message: "Prohibido para esta acción (JWT inválido o sin permisos)"}
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: true
+                  message:
+                    type: string
+                    default: "Prohibido."
+                  content:
+                    default: {code: "RYA13-2", message: "Prohibido para esta acción (JWT inválido o sin permisos)"}
         '404':
-          description: Alojamiento no encontrado.
+          description: Alojamiento no encontrado
           content:
             application/json:
               schema:
-                default: {code: "RYA13", message: "No se encontró el alojamiento especificado para la reserva."}
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: true
+                  message:
+                    type: string
+                    default: "Alojamiento no encontrado."
+                  content:
+                    default: {code: "RYA13", message: "No se encontró el alojamiento especificado para la reserva."}
         default:
           description: Error inesperado
           content:
             application/json:
               schema:
-                default: {code: "ERRIN-19", message: "Error inesperado al tratar de obtener las reservas."}
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: true
+                  message:
+                    type: string
+                    default: "Error inesperado."
+                  content:
+                    default: {code: "ERRIN-19", message: "Error inesperado al tratar de obtener las reservas."}
       security:
         - bearerAuth: []
     post:
@@ -1058,26 +2183,61 @@ paths:
           content:
             application/json:
               schema:
-                type: string
-                default: "Reserva creada satisfactoriamente."
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: false
+                  message:
+                    type: string
+                    default: "Reserva creada satisfactoriamente."
+                  content:
+                    default: null
         '400':
-          description: Error en la solicitud.
+          description: Error en la solicitud
           content:
             application/json:
               schema:
-                default: {code: "RYA03-1", message: "Error en la solicitud al crear una reserva."}
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: true
+                  message:
+                    type: string
+                    default: "Error en la solicitud."
+                  content:
+                    default: {code: "RYA03-1", message: "Error en la solicitud al crear una reserva."}
         '404':
-          description: Alojamiento no encontrado.
+          description: Alojamiento no encontrado
           content:
             application/json:
               schema:
-                default: {code: "RYA03-2", message: "No se encontró el alojamiento especificado para la reserva."}
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: true
+                  message:
+                    type: string
+                    default: "Alojamiento no encontrado."
+                  content:
+                    default: {code: "RYA03-2", message: "No se encontró el alojamiento especificado para la reserva."}
         default:
           description: Error inesperado
           content:
             application/json:
               schema:
-                default: {code: "ERRIN-20", message: "Error inesperado al tratar de crear una reserva."}
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: true
+                  message:
+                    type: string
+                    default: "Error inesperado."
+                  content:
+                    default: {code: "ERRIN-20", message: "Error inesperado al tratar de crear una reserva."}
       security:
         - bearerAuth: []
   /api/reservations/{user_uuid}:
@@ -1097,36 +2257,82 @@ paths:
           description: UUID del usuario para el cual se están obteniendo las reservas.
       responses:
         '200':
-          description: Reservas obtenidas satisfactoriamente.
+          description: Reservas obtenidas
           content:
             application/json:
               schema:
-                type: string
-                default: "Reservas obtenidas satisfactoriamente."
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: false
+                  message:
+                    type: string
+                    default: "Reservas obtenidas satisfactoriamente."
+                  content:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ReservationDTO'
         '401':
           description: No autorizado
           content:
             application/json:
               schema:
-                default: {code: "RYA06-1", message: "No autorizado para esta acción. (JWT ausente)"}
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: true
+                  message:
+                    type: string
+                    default: "No autorizado."
+                  content:
+                    default: {code: "RYA06-1", message: "No autorizado para esta acción. (JWT ausente)"}
         '403':
           description: Prohibido
           content:
             application/json:
               schema:
-                default: {code: "RYA06-2", message: "Prohibido para esta acción (JWT inválido o sin permisos)"}
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: true
+                  message:
+                    type: string
+                    default: "Prohibido."
+                  content:
+                    default: {code: "RYA06-2", message: "Prohibido para esta acción (JWT inválido o sin permisos)"}
         '404':
-          description: Usuario no encontrado.
+          description: Usuario no encontrado
           content:
             application/json:
               schema:
-                default: {code: "RYA06-3", message: "No se encontró el usuario especificado para las reserva."}
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: true
+                  message:
+                    type: string
+                    default: "Usuario no encontrado."
+                  content:
+                    default: {code: "RYA06-3", message: "No se encontró el usuario especificado para las reserva."}
         default:
           description: Error inesperado
           content:
             application/json:
               schema:
-                default: {code: "ERRIN-21", message: "Error inesperado al tratar de obtener las reservas."}
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: true
+                  message:
+                    type: string
+                    default: "Error inesperado."
+                  content:
+                    default: {code: "ERRIN-21", message: "Error inesperado al tratar de obtener las reservas."}
       security:
         - bearerAuth: []
   /api/reservations/{reservation_uuid}/state:
@@ -1154,49 +2360,182 @@ paths:
                 reservationState:
                   type: string
                   enum: [PENDING, CONFIRMED, CANCELLED, COMPLETED]
-                  default: CANCELLED
               required:
                 - reservationState
       responses:
         '200':
-          description: Estado de reserva actualizado satisfactoriamente.
+          description: Estado de reserva actualizado
           content:
             application/json:
               schema:
-                type: string
-                default: "Reserva cancelada satisfactoriamente."
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: false
+                  message:
+                    type: string
+                    default: "Estado de reserva actualizado satisfactoriamente."
+                  content:
+                    default: null
         '400':
-          description: Error en la solicitud.
+          description: Error en la solicitud
           content:
             application/json:
               schema:
-                default: {code: "RYA04-RYA14-GTR06-1", message: "Error en la solicitud al tratar de actualizar el estado de la reserva."}
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: true
+                  message:
+                    type: string
+                    default: "Error en la solicitud."
+                  content:
+                    default: {code: "RYA04-RYA14-GTR06-1", message: "Error en la solicitud al tratar de actualizar el estado de la reserva."}
         '401':
           description: No autorizado
           content:
             application/json:
               schema:
-                default: {code: "RYA04-RYA14-GTR06-2", message: "No autorizado para esta acción. (JWT ausente)"}
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: true
+                  message:
+                    type: string
+                    default: "No autorizado."
+                  content:
+                    default: {code: "RYA04-RYA14-GTR06-2", message: "No autorizado para esta acción. (JWT ausente)"}
         '403':
           description: Prohibido
           content:
             application/json:
               schema:
-                default: {code: "RYA04-RYA14-GTR06-3", message: "Prohibido para esta acción (JWT inválido o sin permisos)"}
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: true
+                  message:
+                    type: string
+                    default: "Prohibido."
+                  content:
+                    default: {code: "RYA04-RYA14-GTR06-3", message: "Prohibido para esta acción (JWT inválido o sin permisos)"}
         '404':
-          description: Reserva no encontrada.
+          description: Reserva no encontrada
           content:
             application/json:
               schema:
-                default: {code: "RYA04-RYA14-GTR06-4", message: "No se encontró la reserva especificada para actualizar su estado."}
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: true
+                  message:
+                    type: string
+                    default: "Reserva no encontrada."
+                  content:
+                    default: {code: "RYA04-RYA14-GTR06-4", message: "No se encontró la reserva especificada para actualizar su estado."}
         default:
           description: Error inesperado
           content:
             application/json:
               schema:
-                default: {code: "ERRIN-22", message: "Error inesperado al tratar de actualizar el estado de la reserva."}
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: true
+                  message:
+                    type: string
+                    default: "Error inesperado."
+                  content:
+                    default: {code: "ERRIN-22", message: "Error inesperado al tratar de actualizar el estado de la reserva."}
       security:
         - bearerAuth: []
+  /api/image:
+    post:
+      tags:
+        - Image
+      summary: crear una imagen en la nube
+      description: Crea una imagen en la nube se devuelve su enlace
+      operationId: postImage
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              default: null # TODO
+      responses:
+        '200':
+          description: Imagen posteada en la nube correctamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: false
+                  message:
+                    type: string
+                    default: "Imagen posteada en la nube correctamente"
+                  content:
+                    default: null # TODO
+        default:
+          description: Error inesperado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: true
+                  message:
+                    type: string
+                    default: "Error inesperado."
+                  content:
+                    default: {code: "ERRIN-24", message: "Error inesperado al tratar de postear la imagen en la nube."}
+    delete:
+      tags:
+        - Image
+      summary: Eliminar una imagen de la nube
+      description: Elimina una imagen que había sido posteada en la nube anteriormente.
+      operationId: deleteImage
+      responses:
+        '200':
+          description: Imagen eliminada de la nube correctamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: false
+                  message:
+                    type: string
+                    default: "Imagen eliminada de la nube correctamente"
+                  content:
+                    default: null # TODO
+        default:
+          description: Error Inesperado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: true
+                  message:
+                    type: string
+                    default: "Error inesperado."
+                  content:
+                    default: {code: "ERRIN-25", message: "Error inesperado al tratar de eliminar la imagen de la nube."}
 components:
   schemas:
     UserDTO:
@@ -1213,7 +2552,7 @@ components:
           format: number
         role:
           type: string
-          enum: [ USER, HOST ]
+          enum: [USER, HOST]
         birthDate:
           type: string
           format: date
@@ -1298,6 +2637,19 @@ components:
         - title
         - description
         - details
+    LodgingMetricsDTO:
+      description: Esquema que representa las métricas de un alojamiento para transferencia de datos.
+      type: object
+      properties:
+        totalReservations:
+          type: integer
+          format: int8
+        averageRating:
+          type: number
+          format: float
+      required:
+        - totalReservations
+        - averageRating
     ReservationDTO:
       description: Esquema que representa una reserva para transferencia de datos.
       type: object
