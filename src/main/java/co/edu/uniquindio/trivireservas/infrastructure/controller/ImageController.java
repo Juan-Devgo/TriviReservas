@@ -1,28 +1,32 @@
 package co.edu.uniquindio.trivireservas.infrastructure.controller;
 
 import co.edu.uniquindio.trivireservas.application.dto.ResponseDTO;
-import co.edu.uniquindio.trivireservas.application.ports.in.ImageUseCases;
+import co.edu.uniquindio.trivireservas.application.ports.in.ImagesUseCases;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
-@RestController("/api/image")
+import java.util.Map;
+
+@RestController
+@RequiredArgsConstructor
+@RequestMapping("/api/image")
 public class ImageController {
 
-    private ImageUseCases imageUseCases;
+    private final ImagesUseCases imagesUseCases;
 
-    @PostMapping("/")
-    public ResponseEntity<ResponseDTO<Void>> uploadImage(){
+    @PostMapping(consumes = "multipart/form-data")
+    public ResponseEntity<ResponseDTO<Map>> uploadImage(@RequestParam("file") MultipartFile file) throws Exception {
         return ResponseEntity.status(200).body(new ResponseDTO<>(false,
                 "Imagen posteada en la nube correctamente",
-                imageUseCases.saveImage("img"))); // -> TODO
+                imagesUseCases.saveImage(file)));
     }
 
-    @DeleteMapping("/")
-    public ResponseEntity<ResponseDTO<Void>> deleteImage(){
+    @DeleteMapping
+    public ResponseEntity<ResponseDTO<Map>> deleteImage(@RequestParam("id") String id) throws Exception {
         return ResponseEntity.status(200).body(new ResponseDTO<>(false,
                 "Imagen eliminada de la nube correctamente",
-                imageUseCases.deleteImage("img"))); // -> TODO
+                imagesUseCases.deleteImage(id)));
     }
 }

@@ -1,37 +1,34 @@
 package co.edu.uniquindio.trivireservas.infrastructure.controller;
 
 import co.edu.uniquindio.trivireservas.application.dto.*;
+import co.edu.uniquindio.trivireservas.application.dto.user.*;
 import co.edu.uniquindio.trivireservas.application.ports.in.AuthenticationUseCases;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/api/auth")
 public class AuthenticationController {
 
-    private AuthenticationUseCases authenticationUseCases;
+    private final AuthenticationUseCases authenticationUseCases;
 
-    @PostMapping("/user/register")
-    public ResponseEntity<ResponseDTO<Void>> registerUser(@Valid @RequestBody UserDTO dto) {
+    @PostMapping("/register")
+    public ResponseEntity<ResponseDTO<Void>> registerUser(@Valid @RequestBody RegisterDTO dto) {
         return ResponseEntity.status(201).body(new ResponseDTO<>(false,
-                "Usuario creado satisfactoriamente.", authenticationUseCases.userRegister(dto)));
+                "Usuario creado satisfactoriamente.", authenticationUseCases.register(dto)));
     }
 
     @PostMapping("/user/login/{mode}")
-    public ResponseEntity<ResponseDTO<Void>> loginUser(@PathVariable String mode, @Valid @RequestBody LoginDTO dto) {
+    public ResponseEntity<ResponseDTO<TokenDTO>> loginUser(@PathVariable String mode, @Valid @RequestBody LoginDTO dto) {
         return ResponseEntity.status(200).body(new ResponseDTO<>(false,
                 "Autenticación exitosa, token JWT generado.", authenticationUseCases.userLogin(dto, mode)));
     }
 
-    @PostMapping("/host/register")
-    public ResponseEntity<ResponseDTO<Void>> registerHost(@RequestBody UserDTO dto) {
-        return ResponseEntity.status(201).body(new ResponseDTO<>(false,
-                "Anfitrión creado satisfactoriamente.", authenticationUseCases.hostRegister(dto)));
-    }
-
     @PostMapping("/host/login/{mode}")
-    public ResponseEntity<ResponseDTO<Void>> loginHost(@PathVariable String mode, @Valid @RequestBody LoginDTO dto) {
+    public ResponseEntity<ResponseDTO<TokenDTO>> loginHost(@PathVariable String mode, @Valid @RequestBody LoginDTO dto) {
         return ResponseEntity.status(200).body(new ResponseDTO<>(false,
                 "Autenticación exitosa, token JWT generado.", authenticationUseCases.hostLogin(dto, mode)));
     }

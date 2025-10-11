@@ -1,11 +1,13 @@
 package co.edu.uniquindio.trivireservas.infrastructure.controller;
 
-import co.edu.uniquindio.trivireservas.application.dto.ReservationDTO;
-import co.edu.uniquindio.trivireservas.application.dto.ReservationStateDTO;
+import co.edu.uniquindio.trivireservas.application.dto.PageResponse;
+import co.edu.uniquindio.trivireservas.application.dto.reservation.ReservationDTO;
+import co.edu.uniquindio.trivireservas.application.dto.reservation.ReservationStateDTO;
 import co.edu.uniquindio.trivireservas.application.dto.ResponseDTO;
-import co.edu.uniquindio.trivireservas.application.ports.in.ReservationFilters;
+import co.edu.uniquindio.trivireservas.application.ports.in.ReservationsFilters;
 import co.edu.uniquindio.trivireservas.application.ports.in.ReservationsUseCases;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,42 +15,48 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/api/reservations")
 public class ReservationController {
-    private ReservationsUseCases reservationsUseCases;
+
+    private final ReservationsUseCases reservationsUseCases;
 
     @GetMapping("/{lodging_uuid}")
-    public ResponseEntity<ResponseDTO<List<ReservationDTO>>> getReservationsByLodging(
+    public ResponseEntity<ResponseDTO<PageResponse<ReservationDTO>>> getReservationsByLodging(
             @PathVariable String lodging_uuid,
             @RequestParam String state,
             @RequestParam String checkIn,
-            @RequestParam String checkOut
+            @RequestParam String checkOut,
+            @RequestParam int page
     ) {
-        ReservationFilters filters = new ReservationFilters(state, checkIn, checkOut);
+        ReservationsFilters filters = new ReservationsFilters(state, checkIn, checkOut);
         return ResponseEntity.ok().body(new ResponseDTO<>(false,
                 "Reservas obtenidas satisfactoriamente",
-                reservationsUseCases.getReservationsByLodging(UUID.fromString(lodging_uuid), filters)));
+                reservationsUseCases.getReservationsByLodgingUUID(UUID.fromString(lodging_uuid), filters, page)));
     }
 
-    @GetMapping("/{userUUID}")
-    public ResponseEntity<ResponseDTO<List<ReservationDTO>>> getReservationsByUser(
-            @PathVariable String userUUID
+    @GetMapping("/{userUUID}/user")
+    public ResponseEntity<ResponseDTO<PageResponse<ReservationDTO>>> getReservationsByUser(
+            @PathVariable String userUUID,
+            @RequestParam int page
     ) {
-        return ResponseEntity.status(200).body(new ResponseDTO<>(false,
-                "Reservas obtenidas satisfactoriamente.",
-                reservationsUseCases.getReservationsByUser(UUID.fromString(userUUID))));
+        PageResponse<ReservationDTO> reservationsPage = reservationsUseCases.getReservationsByUserUUID(
+                UUID.fromString(userUUID),
+                page
+        );
+
+        return ResponseEntity.ok(
+                new ResponseDTO<>(false,
+                        "Reservas obtenidas satisfactoriamente.",
+                        reservationsPage)
+        );
     }
 
     @PostMapping("/{lodgingUUID}")
-    public ResponseEntity<ResponseDTO<Void>> createReservation(
-            @PathVariable String lodgingUUID,
-            @Valid @RequestBody ReservationDTO reservationDTO
-    ) {
+    public ResponseEntity<ResponseDTO<Void>> createReservation(@Valid @RequestBody ReservationDTO reservationDTO) {
         return ResponseEntity.status(201).body(new ResponseDTO<>(false,
                 "Reserva creada satisfactoriamente.",
-                reservationsUseCases.createReservation(UUID.fromString(lodgingUUID),
-                        UUID.randomUUID(), // -> TODO Token JWT
-                        reservationDTO)));
+                reservationsUseCases.createReservation(reservationDTO)));
     }
 
     @PatchMapping("/{reservationUUID}/state")

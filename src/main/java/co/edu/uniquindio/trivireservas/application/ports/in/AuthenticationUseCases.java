@@ -1,19 +1,22 @@
 package co.edu.uniquindio.trivireservas.application.ports.in;
 
-import co.edu.uniquindio.trivireservas.application.dto.LoginDTO;
-import co.edu.uniquindio.trivireservas.application.dto.ResetPasswordRequestDTO;
-import co.edu.uniquindio.trivireservas.application.dto.UpdatePasswordDTO;
-import co.edu.uniquindio.trivireservas.application.dto.UserDTO;
+import co.edu.uniquindio.trivireservas.application.dto.user.*;
+
+import java.util.UUID;
 
 public interface AuthenticationUseCases {
 
-    Void hostRegister(UserDTO dto);
+    // Métodos de aceso al UUID de usuarios autenticados
 
-    Void hostLogin(LoginDTO dto, String mode);
+    UUID getUUIDAuthenticatedUser();
 
-    Void userRegister(UserDTO dto);
+    // Métodos de la API
 
-    Void userLogin(LoginDTO dto, String mode);
+    Void register(RegisterDTO dto);
+
+    TokenDTO hostLogin(LoginDTO dto, String mode);
+
+    TokenDTO userLogin(LoginDTO dto, String mode);
 
     Void restPasswordRequest(ResetPasswordRequestDTO dto);
 

@@ -1,32 +1,29 @@
 package co.edu.uniquindio.trivireservas.application.ports.in;
 
-import co.edu.uniquindio.trivireservas.application.dto.CommentDTO;
-import co.edu.uniquindio.trivireservas.application.dto.LodgingDTO;
-import co.edu.uniquindio.trivireservas.application.dto.LodgingMetricsDTO;
-import co.edu.uniquindio.trivireservas.domain.Lodging;
+import co.edu.uniquindio.trivireservas.application.dto.PageResponse;
+import co.edu.uniquindio.trivireservas.application.dto.lodging.*;
 
-import java.util.List;
 import java.util.UUID;
 
 public interface LodgingsUseCases {
 
-    List<LodgingDTO> getLodgings(LodgingFilters filters);
+    PageResponse<LodgingDTO> getLodgings(LodgingsFilters filters, int page);
 
     LodgingDTO getLodging(UUID lodgingUUID);
 
-    List<LodgingDTO> getLodgingsByHost(UUID hostUUID);
+    PageResponse<LodgingDTO> getLodgingsByHostUUID(UUID hostUUID, int page );
 
-    List<LodgingDTO> getLodgingsBySearch(String search);
+    PageResponse<LodgingDTO> getLodgingsBySearch(String search, int page);
 
     LodgingMetricsDTO getLodgingsMetrics(UUID lodgingUUID);
 
-    Void createLodging(LodgingDTO dto);
+    Void createLodging(CreateLodgingDTO dto);
 
     Void updateLodging(UUID lodgingUUID, LodgingDTO dto);
 
-    Void addCommentLodging(UUID lodgingUUID, CommentDTO dto);
+    Void addCommentLodging(CreateCommentDTO dto);
 
-    Void addCommentResponseLodging(UUID lodgingUUID, UUID UserUUID, String response);
+    Void addCommentResponseLodging(UUID lodgingUUID, UUID commentUUID, String response);
 
     Void deleteLodging(UUID lodgingUUID);
 }

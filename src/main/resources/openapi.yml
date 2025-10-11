@@ -14,7 +14,7 @@ info:
     * Juan Sebastián Londoño Ramírez [github](https://github.com/Juan3bitas)
     * Angie Carolina Grajales Giraldo [github](https://github.com/angiec-grajalesg)
     * Juan Diego García Nieto [github](https://github.com/Juan-Devgo)
-  version: 1.1.0
+  version: 1.1.1
   license:
     name: GNU General Public License v3.0
     url: https://www.gnu.org/licenses/gpl-3.0.en.html
@@ -657,7 +657,7 @@ paths:
                     default: {code: "GTU06-GTU07-3", message: "El código o la contraseña actual enviada no coincide."}
       security:
         - bearerAuth: []
-  /api/auth/user/register:
+  /api/auth/register:
     post:
       tags:
         - Auth
@@ -736,7 +736,7 @@ paths:
       tags:
         - Auth
       summary: Autenticar usuario y obtener token JWT
-      description: Autentica un usuario y genera un token JWT para la autenticación en futuras solicitudes, cumpliendo con el requisito REQ-RYA-U-01 y REQ-RYA-A-08.
+      description: Autentica un usuario y genera un token JWT para la autenticación en futuras solicitudes, cumpliendo con el requisito REQ-RYA-U-01, REQ-RYA-H-01, REQ-RYA-A-08.
       operationId: loginUser
       parameters:
         - name: mode
@@ -799,65 +799,6 @@ paths:
                     default: "Error inesperado."
                   content:
                     default: {code: "ERRIN-06", message: "Error inesperado al tratar de iniciar sesión."}
-  /api/auth/host/register:
-    post:
-      tags:
-        - Auth
-      summary: Crear un nuevo anfitrión
-      description: Crea un nuevo anfitrión en el sistema, cumpliendo con el requisito REQ-RYA-H-01 y REQ-RYA-A-08.
-      operationId: createHost
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UserDTO'
-      responses:
-        '201':
-          description: Anfitrión creado satisfactoriamente.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  error:
-                    type: boolean
-                    default: false
-                  message:
-                    type: string
-                    default: "Anfitrión creado satisfactoriamente."
-                  content:
-                    default: null                
-        '400':
-          description: Error en la solicitud
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  error:
-                    type: boolean
-                    default: true
-                  message:
-                    type: string
-                    default: "Error en la solicitud."
-                  content:
-                    default: {code: "RYA08-1", message: "Error en la solicitud al tratar de crear un anfitrión."}
-        default:
-          description: Error inesperado
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  error:
-                    type: boolean
-                    default: true
-                  message:
-                    type: string
-                    default: "Error inesperado."
-                  content:
-                    default: {code: "ERRIN-07", message: "Error inesperado al tratar de crear un anfitrión."}
   /api/auth/host/login/{mode}:
     post:
       tags:
@@ -1693,7 +1634,7 @@ paths:
         - Lodging
       summary: Obtener alojamientos de un anfitrión específico
       description: Obtiene una lista de alojamientos asociados a un anfitrión específico.
-      operationId: getLodgingsByHost
+      operationId: getLodgingsByHostUUID
       parameters:
         - name: host_uuid
           in: path
@@ -2246,7 +2187,7 @@ paths:
         - Reservation
       summary: Obtener reservas de un usuario específico
       description: Obtiene una lista de reservas asociadas a un usuario específico.
-      operationId: getReservationsByUser
+      operationId: getReservationsByUserUUID
       parameters:
         - name: user_uuid
           in: path
