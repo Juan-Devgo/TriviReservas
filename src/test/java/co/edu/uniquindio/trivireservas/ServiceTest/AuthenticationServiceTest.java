@@ -60,7 +60,7 @@ class AuthenticationServiceTest {
 
         authenticationServices.register(dto);
 
-        verify(userMapper).registerDTOToAbstractUserEntity(dto);
+        verify(userMapper).fromRegisterDTO(dto);
         verify(userRepository).createUser(any());
     }
 

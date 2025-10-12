@@ -1,13 +1,9 @@
 package co.edu.uniquindio.trivireservas.application.mapper;
 
-import co.edu.uniquindio.trivireservas.application.dto.user.RegisterDTO;
 import co.edu.uniquindio.trivireservas.application.dto.user.UpdateUserDTO;
 import co.edu.uniquindio.trivireservas.application.dto.user.UserDTO;
 import co.edu.uniquindio.trivireservas.domain.Host;
-import co.edu.uniquindio.trivireservas.domain.User;
-import co.edu.uniquindio.trivireservas.infrastructure.entity.AbstractUserEntity;
-import co.edu.uniquindio.trivireservas.infrastructure.entity.HostEntity;
-import co.edu.uniquindio.trivireservas.infrastructure.entity.UserEntity;
+import co.edu.uniquindio.trivireservas.infrastructure.entity.*;
 import org.mapstruct.*;
 
 import java.time.LocalDate;
@@ -15,18 +11,11 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING,
-        uses = {UserDetailsMapper.class, ReservationMapper.class, CommentMapper.class}
+        uses = {UserDetailsMapper.class, LodgingMapper.class, ReservationMapper.class, CommentMapper.class},
+        builder = @Builder(disableBuilder = true),
+        unmappedTargetPolicy = ReportingPolicy.IGNORE
 )
 public interface HostMapper {
-
-    // RegisterDTO -> AbstractUserEntity
-
-    // Estado por defecto: ACTIVE
-    @Mapping(target = "uuid", expression = "java(java.util.UUID.randomUUID())")
-    @Mapping(target = "details", ignore = true)
-    @Mapping(target = "state", constant = "ACTIVE")
-    @Mapping(target = "createdAt", expression = "java(java.time.LocalDateTime.now())")
-    AbstractUserEntity createAbstractUserEntity(RegisterDTO dto);
 
     // Actualizar un HostEntity
 
@@ -39,34 +28,75 @@ public interface HostMapper {
 
     @Mapping(target = "role", defaultValue = "USER")
     @Mapping(target = "birthdate", source = "birthdate", qualifiedByName = "localDateToString")
-    UserDTO toDto(Host host);
+    UserDTO toDtoFromDomain(Host host);
 
     // UserEntity -> Host
 
-    Host toDomain(HostEntity entity);
+    @Mapping(target = "details", source = "details")
+    @Mapping(target = "lodgings", source = "lodgings")
+    Host toDomainFromEntity(HostEntity entity);
 
     // Host -> HostEntity
 
     @InheritInverseConfiguration
-    HostEntity toEntity(Host host);
+    HostEntity toEntityFromDomain(Host host);
 
     //List<Host> -> List<UserDTO>
 
-    List<UserDTO> toDto(List<Host> hosts);
+    List<UserDTO> toDtoFromDomainList(List<Host> hosts);
 
     // List<UserEntity> -> List<User>
 
-    List<Host> toDomain(List<HostEntity> entities);
+    List<Host> toDomainFromEntityList(List<HostEntity> entities);
 
     // List<Host> -> List<HostEntity>
 
     @InheritInverseConfiguration
-    List<HostEntity> toEntity(List<Host> hosts);
+    List<HostEntity> toEntityFromDomainList(List<Host> hosts);
 
     @Named("localDateToString")
     default String asString(LocalDate date) {
         return date != null
                 ? date.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
                 : null;
+    }
+
+    // --- Conversión de List<String> a List<DocumentEntity> ---
+    default List<DocumentEntity> toDocumentEntities(List<String> urls) {
+        if (urls == null) return null;
+
+        return urls.stream()
+                .map(url -> {
+                    DocumentEntity entity = new DocumentEntity();
+                    entity.setUrl(url);
+                    return entity;
+                })
+                .toList();
+    }
+
+    // --- Conversión de List<String> a List<ServiceEntity> ---
+    default List<ServiceEntity> toServiceEntities(List<String> names) {
+        if (names == null) return null;
+
+        return names.stream()
+                .map(service -> {
+                    ServiceEntity entity = new ServiceEntity();
+                    entity.setName(service);
+                    return entity;
+                })
+                .toList();
+    }
+
+    // --- Conversión de List<String> a List<PictureEntity> ---
+    default List<PictureEntity> toPictureEntities(List<String> urls) {
+        if (urls == null) return null;
+
+        return urls.stream()
+                .map(url -> {
+                    PictureEntity entity = new PictureEntity();
+                    entity.setUrl(url);
+                    return entity;
+                })
+                .toList();
     }
 }

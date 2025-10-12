@@ -15,11 +15,11 @@ public interface CommentMapper {
 
     // Crear un comentario
 
-    @Mapping(target = "uuid", expression = "java(java.lang.util.UUID.randomUUID())")
+    @Mapping(target = "uuid", expression = "java(java.util.UUID.randomUUID())")
     @Mapping(target = "user.uuid", ignore = true)
     @Mapping(target = "lodging.uuid", source = "lodgingUUID")
     @Mapping(target = "response", ignore = true)
-    @Mapping(target = "createdAt", expression = "java(java.time.LocalDateTime.now())")
+    @Mapping(target = "creationDate", expression = "java(java.time.LocalDateTime.now())")
     CommentEntity createCommentEntity(CreateCommentDTO dto);
 
     // Comment -> CommentDTO

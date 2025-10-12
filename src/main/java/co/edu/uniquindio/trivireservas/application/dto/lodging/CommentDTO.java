@@ -12,5 +12,6 @@ public record CommentDTO (
     @NotBlank UUID lodgingUUID,
     @NotBlank String comment,
     @NotBlank @Size(min = 1, max = 5) int valuation,
-    @NotBlank @Pattern(regexp = "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[12]\\d|3[01])$") String creationDate // TODO poner en open API
+    @NotBlank @Pattern(regexp = "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[12]\\d|3[01])$") String creationDate, // TODO poner en open API
+    @NotBlank String response
 ) {}

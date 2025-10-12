@@ -2,7 +2,6 @@ package co.edu.uniquindio.trivireservas.application.service;
 
 import co.edu.uniquindio.trivireservas.application.dto.PageResponse;
 import co.edu.uniquindio.trivireservas.application.dto.lodging.*;
-import co.edu.uniquindio.trivireservas.application.mapper.CommentMapper;
 import co.edu.uniquindio.trivireservas.application.mapper.LodgingMapper;
 import co.edu.uniquindio.trivireservas.application.ports.in.LodgingsFilters;
 import co.edu.uniquindio.trivireservas.application.ports.in.LodgingsUseCases;
@@ -36,7 +35,7 @@ public class LodgingsServices implements LodgingsUseCases {
         if(lodging == null) {
             throw new IllegalArgumentException("Lodging with UUID " + lodgingUUID + " not found");
         }
-        return lodgingMapper.toDto(lodging);
+        return lodgingMapper.toDtoFromDomain(lodging);
     }
 
     // Obtener todos los alojamientosDTO por medio de filtros y separarlos en páginas (10 alojamientos)
@@ -46,14 +45,15 @@ public class LodgingsServices implements LodgingsUseCases {
 
         PageResponse<Lodging> lodgingPage = lodgingRepositoryUseCases.getLodgings(lodgingsFilters, page);
         List<Lodging> lodgings = lodgingPage.content();
-        List<LodgingDTO> lodgingDTOs = lodgingMapper.toDto(lodgings);
+        List<LodgingDTO> lodgingDTOs = lodgingMapper.toDtoFromDomainList(lodgings);
 
         return new PageResponse<LodgingDTO>(
                 lodgingDTOs,
                 page,
                 10,
                 lodgingPage.totalPages(),
-                lodgingPage.last());
+                lodgingPage.hasNext()
+        );
     }
     
     // Obtener todos los alojamientosDTO de un Host y separarlos en páginas (10 alojamientos)
@@ -64,14 +64,14 @@ public class LodgingsServices implements LodgingsUseCases {
         PageResponse<Lodging> lodgingPage = lodgingRepositoryUseCases.getLodgingsByHostUUID(hostUUID, page);
 
         List<Lodging> lodgings = lodgingPage.content();
-        List<LodgingDTO> lodgingDTOS = lodgingMapper.toDto(lodgings);
+        List<LodgingDTO> lodgingDTOS = lodgingMapper.toDtoFromDomainList(lodgings);
 
         return new PageResponse<>(
                 lodgingDTOS,
                 page,
                 10,
                 lodgingPage.totalPages(),
-                lodgingPage.last());
+                lodgingPage.hasNext());
     }
 
     // Obtener los alojamientosDTO por la búsqueda (un String) y separarlos en páginas (10 alojamientos)
@@ -82,14 +82,14 @@ public class LodgingsServices implements LodgingsUseCases {
         PageResponse<Lodging> lodgingPage = lodgingRepositoryUseCases.getLodgingsBySearch(search, page);
 
         List<Lodging> lodgings = lodgingPage.content();
-        List<LodgingDTO> lodgingDTOs = lodgingMapper.toDto(lodgings);
+        List<LodgingDTO> lodgingDTOs = lodgingMapper.toDtoFromDomainList(lodgings);
 
         return new PageResponse<>(
                 lodgingDTOs,
                 page,
                 10,
                 lodgingPage.totalPages(),
-                lodgingPage.last()
+                lodgingPage.hasNext()
         );
     }
 

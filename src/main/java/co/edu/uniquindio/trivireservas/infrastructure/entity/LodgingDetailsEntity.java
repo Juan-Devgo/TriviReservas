@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
+import java.util.UUID;
 
 @Data
 @Entity
@@ -15,7 +16,11 @@ import java.util.List;
 public class LodgingDetailsEntity {
 
     @Id
-    @OneToOne(mappedBy = "details")
+    private UUID uuid;
+
+    @MapsId
+    @OneToOne
+    @JoinColumn(name = "lodging_uuid")
     private LodgingEntity lodging;
 
     @Column(nullable = false)

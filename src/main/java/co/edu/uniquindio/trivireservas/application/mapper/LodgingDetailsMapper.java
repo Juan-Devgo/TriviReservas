@@ -14,21 +14,21 @@ public interface LodgingDetailsMapper {
 
     // LodgingDetails -> LodgingDetailsDTO
 
-    public LodgingDetailsDTO toDto(LodgingDetails lodging);
+    LodgingDetailsDTO toDtoFromDomain(LodgingDetails lodging);
 
     // LodgingDetailsDTO -> LodgingDetails
 
     @Mapping(target = "lodgingUUID", source = "lodging.uuid")
     @Mapping(target = "services", source = "services", qualifiedByName = "servicesEntityToString")
     @Mapping(target = "pictures", source = "pictures", qualifiedByName = "picturesEntityToString")
-    public LodgingDetails toDomain(LodgingDetailsEntity entity);
+    LodgingDetails toDomainFromEntity(LodgingDetailsEntity entity);
 
     // LodgingDetails -> LodgingDetailsEntity
 
     @Mapping(target = "lodging", source = "lodgingUUID", qualifiedByName = "uuidToLodgingEntity")
     @Mapping(target = "services", source = "services", qualifiedByName = "stringToServicesEntity")
     @Mapping(target = "pictures", source = "pictures", qualifiedByName = "stringToPicturesEntity")
-    LodgingDetailsEntity toEntity(LodgingDetails lodging);
+    LodgingDetailsEntity toEntityFromDomain(LodgingDetails lodging);
 
     @Named("servicesEntityToString")
     default List<String> servicesEntityToString(List<ServiceEntity> documents) {

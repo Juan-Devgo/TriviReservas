@@ -18,4 +18,5 @@ public class Comment {
     private String comment;
     private int valuation;
     private LocalDateTime creationDate;
+    private String response;
 }

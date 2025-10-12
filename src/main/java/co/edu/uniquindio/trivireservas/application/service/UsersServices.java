@@ -42,6 +42,7 @@ public class UsersServices implements UsersUseCases {
     public PageResponse<UserDTO> getUsers(int page) {
 
         PageResponse<AbstractUser> usersPage = abstractUserRepositoryUseCases.getUsers(page);
+
         List<AbstractUser> abstractUsers = usersPage.content();
         List<User> users = abstractUsers
                 .stream().filter(abs -> abs.getRole().equals(UserRole.USER))
@@ -51,21 +52,21 @@ public class UsersServices implements UsersUseCases {
                 .stream().filter(abs -> abs.getRole().equals(UserRole.HOST))
                 .map(h -> (Host) h).toList();
 
-        List<UserDTO> userDTOs = new ArrayList<>(userMapper.toDto(users));
-        userDTOs.addAll((hostMapper.toDto(hosts)));
+        List<UserDTO> userDTOs = new ArrayList<>(userMapper.toDtoFromDomainList(users));
+        userDTOs.addAll((hostMapper.toDtoFromDomainList(hosts)));
 
         return new PageResponse<>(
                 userDTOs,
                 page,
                 10,
                 usersPage.totalPages(),
-                usersPage.last()
+                usersPage.hasNext()
         );
     }
 
     @Override
     public UserDTO getUser(UUID uuid) {
-        return userMapper.toDto(abstractUserRepositoryUseCases.getUserByUUID(uuid));
+        return userMapper.toDtoFromDomain(abstractUserRepositoryUseCases.getUserByUUID(uuid));
     }
 
     @Override
@@ -74,14 +75,14 @@ public class UsersServices implements UsersUseCases {
         PageResponse<Lodging> lodgingsPage = lodgingRepositoryUseCases.getFavoriteLodgingsByUserUUID(userUUID, page);
         List<Lodging> lodgings = lodgingsPage.content();
 
-        List<LodgingDTO> lodgingDTOs = lodgingMapper.toDto(lodgings);
+        List<LodgingDTO> lodgingDTOs = lodgingMapper.toDtoFromDomainList(lodgings);
 
         return new PageResponse<>(
                 lodgingDTOs,
                 page,
                 10,
                 lodgingsPage.totalPages(),
-                lodgingsPage.last()
+                lodgingsPage.hasNext()
         );
     }
 
@@ -90,14 +91,14 @@ public class UsersServices implements UsersUseCases {
         PageResponse<Lodging> recommendedPage = lodgingRepositoryUseCases.getRecommendedLodgingsByUserUUID(userUUID, page);
 
         List<Lodging> lodgings = recommendedPage.content();
-        List<LodgingDTO> recommendedDTOs = lodgingMapper.toDto(lodgings);
+        List<LodgingDTO> recommendedDTOs = lodgingMapper.toDtoFromDomainList(lodgings);
 
         return new PageResponse<>(
                 recommendedDTOs,
                 page,
                 recommendedPage.pageSize(),
                 recommendedPage.totalPages(),
-                recommendedPage.last()
+                recommendedPage.hasNext()
         );
     }
 

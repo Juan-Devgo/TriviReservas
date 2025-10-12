@@ -52,7 +52,7 @@ public class CommentRepository implements CommentRepositoryUseCases {
         }
 
         commentEntity.setResponse(response);
-        commentEntity.setResponseDate(LocalDateTime.now());
+        commentEntity.setCreationDate(LocalDateTime.now());
 
         commentJpaRepository.save(commentEntity);
 

@@ -37,7 +37,7 @@ public class LodgingRepository implements LodgingRepositoryUseCases {
                 pageable
         );
 
-        List<Lodging> lodgings = lodgingMapper.toDomain(lodgingsPage.getContent());
+        List<Lodging> lodgings = lodgingMapper.toDomainFromEntityList(lodgingsPage.getContent());
 
         return new PageResponse<>(
                 lodgings,
@@ -51,7 +51,7 @@ public class LodgingRepository implements LodgingRepositoryUseCases {
     @Override
     public Lodging getLodgingByUUID(UUID uuid) {
         return lodgingJpaRepository.findById(uuid)
-                .map(lodgingMapper::toDomain)
+                .map(lodgingMapper::toDomainFromEntity)
                 .orElseThrow(() -> new EntityNotFoundException(uuid.toString()));
     }
 
@@ -60,7 +60,7 @@ public class LodgingRepository implements LodgingRepositoryUseCases {
         Pageable pageable = PageRequest.of(page, 10);
         Page<LodgingEntity> lodgingsPage = lodgingJpaRepository.findByHost_Uuid(hostUUID, pageable);
 
-        List<Lodging> lodgings = lodgingMapper.toDomain(lodgingsPage.getContent());
+        List<Lodging> lodgings = lodgingMapper.toDomainFromEntityList(lodgingsPage.getContent());
 
         return new PageResponse<>(
                 lodgings,
@@ -76,7 +76,7 @@ public class LodgingRepository implements LodgingRepositoryUseCases {
         Pageable pageable = PageRequest.of(page, 10);
         Page<LodgingEntity> entityPage = lodgingJpaRepository.findAllLodgingsBySearch(search, pageable);
 
-        List<Lodging> lodgings = lodgingMapper.toDomain(entityPage.getContent());
+        List<Lodging> lodgings = lodgingMapper.toDomainFromEntityList(entityPage.getContent());
 
         return new PageResponse<>(
                 lodgings,
@@ -92,7 +92,7 @@ public class LodgingRepository implements LodgingRepositoryUseCases {
         Pageable pageable = PageRequest.of(page, 10);
         Page<LodgingEntity> lodgingsPage = lodgingJpaRepository.findFavoritesByUserUUID(userUUID, pageable);
 
-        List<Lodging> lodgings = lodgingMapper.toDomain(lodgingsPage.getContent());
+        List<Lodging> lodgings = lodgingMapper.toDomainFromEntityList(lodgingsPage.getContent());
 
         return new PageResponse<>(
                 lodgings,
@@ -108,7 +108,7 @@ public class LodgingRepository implements LodgingRepositoryUseCases {
         Pageable pageable = PageRequest.of(page, 10);
         Page<LodgingEntity> lodgingsPage = lodgingJpaRepository.findRecommendedByUserUUID(userUUID, pageable);
 
-        List<Lodging> lodgings = lodgingMapper.toDomain(lodgingsPage.getContent());
+        List<Lodging> lodgings = lodgingMapper.toDomainFromEntityList(lodgingsPage.getContent());
 
         return new PageResponse<>(
                 lodgings,
@@ -124,7 +124,7 @@ public class LodgingRepository implements LodgingRepositoryUseCases {
         Pageable pageable = PageRequest.of(page, 10);
         Page<LodgingEntity> lodgingsPage = lodgingJpaRepository.findAll(pageable);
 
-        List<Lodging> lodgings = lodgingMapper.toDomain(lodgingsPage.getContent());
+        List<Lodging> lodgings = lodgingMapper.toDomainFromEntityList(lodgingsPage.getContent());
 
         return new PageResponse<>(
                 lodgings,

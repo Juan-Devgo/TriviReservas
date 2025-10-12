@@ -57,9 +57,9 @@ public class AbstractUserRepository implements AbstractUserRepositoryUseCases {
                 .stream().filter(abs -> abs.getRole().equals(UserRole.HOST))
                 .map(h -> (HostEntity) h).toList();
 
-        List<AbstractUser> abstractUsers = new ArrayList<>(userMapper.toDomain(userEntities));
+        List<AbstractUser> abstractUsers = new ArrayList<>(userMapper.toDomainFromEntityList(userEntities));
 
-        abstractUsers.addAll(hostMapper.toDomain(hostsEntities));
+        abstractUsers.addAll(hostMapper.toDomainFromEntityList(hostsEntities));
 
         return new PageResponse<>(
                 abstractUsers,
@@ -79,7 +79,7 @@ public class AbstractUserRepository implements AbstractUserRepositoryUseCases {
             throw new EntityNotFoundException(uuid.toString());
         }
 
-        return userMapper.toDomain(optionalEntity.get());
+        return userMapper.toDomainFromEntity(optionalEntity.get());
     }
 
     @Override
@@ -91,7 +91,7 @@ public class AbstractUserRepository implements AbstractUserRepositoryUseCases {
             throw new EntityNotFoundException(email);
         }
 
-        return userMapper.toDomain(optionalEntity.get());
+        return userMapper.toDomainFromEntity(optionalEntity.get());
     }
 
     @Override
@@ -103,7 +103,7 @@ public class AbstractUserRepository implements AbstractUserRepositoryUseCases {
             throw new EntityNotFoundException(phone);
         }
 
-        return userMapper.toDomain(optionalEntity.get());
+        return userMapper.toDomainFromEntity(optionalEntity.get());
     }
 
     @Override
@@ -115,7 +115,7 @@ public class AbstractUserRepository implements AbstractUserRepositoryUseCases {
             throw  new EntityNotFoundException(uuid.toString());
         }
 
-        return hostMapper.toDomain(optionalEntity.get());
+        return hostMapper.toDomainFromEntity(optionalEntity.get());
     }
 
     @Override
@@ -127,7 +127,7 @@ public class AbstractUserRepository implements AbstractUserRepositoryUseCases {
             throw new EntityNotFoundException(email);
         }
 
-        return hostMapper.toDomain(optionalEntity.get());
+        return hostMapper.toDomainFromEntity(optionalEntity.get());
     }
 
     @Override
@@ -139,7 +139,7 @@ public class AbstractUserRepository implements AbstractUserRepositoryUseCases {
             throw new EntityNotFoundException(phone);
         }
 
-        return hostMapper.toDomain(optionalEntity.get());
+        return hostMapper.toDomainFromEntity(optionalEntity.get());
     }
 
     @Override

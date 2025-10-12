@@ -1,9 +1,6 @@
 package co.edu.uniquindio.trivireservas.infrastructure.entity;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Entity;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -20,6 +17,6 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 public class HostEntity extends AbstractUserEntity {
 
-    @OneToMany(mappedBy = "host", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "host", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<LodgingEntity> lodgings = new ArrayList<>();
 }

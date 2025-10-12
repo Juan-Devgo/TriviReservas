@@ -7,5 +7,5 @@ public record PageResponse<T>( // TODO poner en open API
         int page,
         int pageSize,
         int totalPages,
-        boolean last
+        boolean hasNext
 ) {}

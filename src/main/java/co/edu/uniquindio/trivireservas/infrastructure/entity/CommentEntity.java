@@ -38,7 +38,5 @@ public class CommentEntity {
     @Column(nullable = true)
     private String response;
 
-    @Column(nullable = true)
-    private LocalDateTime responseDate;
 
 }

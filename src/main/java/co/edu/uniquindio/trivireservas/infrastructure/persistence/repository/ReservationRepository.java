@@ -43,7 +43,7 @@ public class ReservationRepository implements ReservationRepositoryUseCases {
         );
 
         List<ReservationEntity> reservationsEntity = reservationsPage.getContent();
-        List<Reservation> reservations = reservationMapper.toDomain(reservationsEntity);
+        List<Reservation> reservations = reservationMapper.toDomainFromEntityList(reservationsEntity);
 
         return new PageResponse<>(
                 reservations,
@@ -60,7 +60,7 @@ public class ReservationRepository implements ReservationRepositoryUseCases {
         Page<ReservationEntity> reservationsPage =
                 reservationJpaRepository.findAllByUser_Uuid(userUUID, PageRequest.of(page, 10));
         List<ReservationEntity> reservationsEntity = reservationsPage.getContent();
-        List<Reservation> reservations = reservationMapper.toDomain(reservationsEntity);
+        List<Reservation> reservations = reservationMapper.toDomainFromEntityList(reservationsEntity);
 
         return new PageResponse<>(
                 reservations,
@@ -77,7 +77,7 @@ public class ReservationRepository implements ReservationRepositoryUseCases {
         Page<ReservationEntity> pageResult = reservationJpaRepository.findAll(pageable);
 
         List<ReservationEntity> reservationsEntity = pageResult.getContent();
-        List<Reservation> reservations = reservationMapper.toDomain(reservationsEntity);
+        List<Reservation> reservations = reservationMapper.toDomainFromEntityList(reservationsEntity);
 
         return new PageResponse<>(
                 reservations,

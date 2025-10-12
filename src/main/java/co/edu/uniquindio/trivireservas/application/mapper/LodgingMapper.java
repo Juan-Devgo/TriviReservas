@@ -2,31 +2,37 @@ package co.edu.uniquindio.trivireservas.application.mapper;
 
 import co.edu.uniquindio.trivireservas.application.dto.lodging.CreateLodgingDTO;
 import co.edu.uniquindio.trivireservas.application.dto.lodging.LodgingDTO;
+import co.edu.uniquindio.trivireservas.application.dto.lodging.LodgingDetailsDTO;
+import co.edu.uniquindio.trivireservas.domain.Location;
 import co.edu.uniquindio.trivireservas.domain.Lodging;
-import co.edu.uniquindio.trivireservas.infrastructure.entity.LodgingEntity;
+import co.edu.uniquindio.trivireservas.domain.LodgingDetails;
+import co.edu.uniquindio.trivireservas.infrastructure.entity.*;
 import org.mapstruct.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING,
-        uses = {LodgingDetailsMapper.class, ReservationMapper.class, CommentMapper.class}
+        uses = {LodgingDetailsMapper.class, ReservationMapper.class, CommentMapper.class},
+        unmappedTargetPolicy = ReportingPolicy.IGNORE
 )
 public interface LodgingMapper {
 
     // LodgingDTO -> LodgingEntity (Crear un alojamiento)
 
-    @Mapping(target = "uuid", expression = "java(java.lang.util.UUID.randomUUID())")
+    @Mapping(target = "uuid", expression = "java(java.util.UUID.randomUUID())")
     @Mapping(target = "creationDate", expression = "java(java.time.LocalDateTime.now())")
     LodgingEntity createLodgingEntity(CreateLodgingDTO dto);
 
     // LodgingDTO -> LodgingEntity (Actualizar un alojamiento)
 
+    @Mapping(target = "creationDate", ignore = true)
     void updateLodgingEntity(LodgingDTO dto, @MappingTarget LodgingEntity entity);
 
     // Lodging -> LodgingDTO
 
     @Mapping(target = "creationDate", dateFormat = "yyyy-MM-dd")
-    LodgingDTO toDto(Lodging lodging);
+    LodgingDTO toDtoFromDomain(Lodging lodging);
 
     // LodgingDTO -> Lodging
     
@@ -35,54 +41,106 @@ public interface LodgingMapper {
 
     // Domain -> CreateLodgingDTO
 
-    @Mapping(target = "creationDate", dateFormat = "yyyy-MM-dd")
-    CreateLodgingDTO toCreationDto(Lodging lodging);
+    CreateLodgingDTO toCreationDtoFromDomain(Lodging lodging);
 
     // CreateLodgingDTO -> Domain
 
     @InheritInverseConfiguration
     Lodging toDomainFromCreationDto(CreateLodgingDTO dto);
 
-    // CreateLodgingDTO -> Entity
-
-
     // LodgingEntity -> Lodging
 
     @Mapping(target = "hostUUID", source = "host.uuid")
     @Mapping(target = "creationDate", dateFormat = "yyyy-MM-dd")
-    Lodging toDomain(LodgingEntity entity);
+    Lodging toDomainFromEntity(LodgingEntity entity);
 
     // Lodging -> LodgingEntity
 
     @Mapping(target = "host", source = "hostUUID", qualifiedByName = "uuidToAbstractUserEntity")
-    LodgingEntity toEntity(Lodging lodging);
+    LodgingEntity toEntityFromDomain(Lodging lodging);
 
     // DTO -> Entity
     @Mapping(target = "hostUUID", source = "host.uuid")
     @Mapping(target = "creationDate", dateFormat = "yyyy-MM-dd")
-    LodgingDTO toDto(LodgingEntity entity);
+    LodgingDTO toDtoFromEntity(LodgingEntity entity);
 
     // Entity -> DTO
 
     @Mapping(target = "host", source = "hostUUID", qualifiedByName = "uuidToAbstractUserEntity")
     LodgingEntity toEntityFromDto(LodgingDTO dto);
 
+    @Mapping(target = "details.location", expression = "java(mapLocation(details.getLocation(), lodgingEntity))")
+    LodgingDetailsEntity toEntityFromDomain(LodgingDetails details, @Context LodgingEntity LoadgingEntity);
+
+    // Método de actualización de detalles de la entidad
+
+    void updateEntity(LodgingDetailsDTO dto, @MappingTarget LodgingDetailsEntity entity);
+
     // List<Lodging> -> List<LodgingDTO>
 
-    List<LodgingDTO> toDto(List<Lodging> lodgings);
+    List<LodgingDTO> toDtoFromDomainList(List<Lodging> lodgings);
 
     // List<LodgingEntity> -> List<Lodging>
 
-    List<Lodging> toDomain(List<LodgingEntity> entities);
+    List<Lodging> toDomainFromEntityList(List<LodgingEntity> entities);
 
     // List<Lodging> -> List<LodgingEntity>
 
-    List<LodgingEntity> toEntity(List<Lodging> lodgings);
+    List<LodgingEntity> toEntityFromDomainList(List<Lodging> lodgings);
 
     @AfterMapping
     default void afterMapping(@MappingTarget LodgingEntity lodgingEntity) {
 
         lodgingEntity.getDetails().setLodging(lodgingEntity);
     }
-}
 
+    @Named("uuidToAbstractUserEntity")
+    default AbstractUserEntity uuidToAbstractEntity(UUID uuid) {
+
+        if (uuid == null) {
+            return null;
+        }
+
+        AbstractUserEntity entity = new AbstractUserEntity();
+        entity.setUuid(uuid);
+        return entity;
+    }
+
+    // List<String> -> ServiceEntity
+
+    default List<ServiceEntity> map(List<String> services) {
+
+        if (services == null) return null;
+
+        return services.stream().map(serviceName -> {
+            ServiceEntity entity = new ServiceEntity();
+            entity.setName(serviceName);
+            return entity;
+            }).toList();
+    }
+
+    // List<String> -> List<PicturesEntity>
+
+    default  List<PictureEntity> mapPictures(List<String> pictures) {
+
+        if (pictures == null) return null;
+
+        return pictures.stream().map(url ->{
+            PictureEntity entity = new PictureEntity();
+            entity.setUrl(url);
+            return entity;
+            }).toList();
+    }
+
+    default LocationEntity mapLocation(Location location, LodgingDetailsEntity lodgingDetailsEntity) {
+
+        if (location == null) return null;
+
+        LocationEntity entity = new LocationEntity();
+        entity.setLatitude(location.getLatitude());
+        entity.setLongitude(location.getLongitude());
+        entity.setAddress(location.getAddress());
+        entity.setLodging(lodgingDetailsEntity);
+        return entity;
+    }
+}

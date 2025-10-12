@@ -1,6 +1,7 @@
 package co.edu.uniquindio.trivireservas.infrastructure.controller;
 
 import co.edu.uniquindio.trivireservas.application.dto.PageResponse;
+import co.edu.uniquindio.trivireservas.application.dto.reservation.CreateReservationDTO;
 import co.edu.uniquindio.trivireservas.application.dto.reservation.ReservationDTO;
 import co.edu.uniquindio.trivireservas.application.dto.reservation.ReservationStateDTO;
 import co.edu.uniquindio.trivireservas.application.dto.ResponseDTO;
@@ -11,7 +12,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -53,7 +53,7 @@ public class ReservationController {
     }
 
     @PostMapping("/{lodgingUUID}")
-    public ResponseEntity<ResponseDTO<Void>> createReservation(@Valid @RequestBody ReservationDTO reservationDTO) {
+    public ResponseEntity<ResponseDTO<Void>> createReservation(@Valid @RequestBody CreateReservationDTO reservationDTO) {
         return ResponseEntity.status(201).body(new ResponseDTO<>(false,
                 "Reserva creada satisfactoriamente.",
                 reservationsUseCases.createReservation(reservationDTO)));

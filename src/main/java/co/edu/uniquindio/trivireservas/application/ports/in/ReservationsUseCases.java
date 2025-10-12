@@ -1,6 +1,7 @@
 package co.edu.uniquindio.trivireservas.application.ports.in;
 
 import co.edu.uniquindio.trivireservas.application.dto.PageResponse;
+import co.edu.uniquindio.trivireservas.application.dto.reservation.CreateReservationDTO;
 import co.edu.uniquindio.trivireservas.application.dto.reservation.ReservationDTO;
 import co.edu.uniquindio.trivireservas.application.dto.reservation.ReservationStateDTO;
 
@@ -12,7 +13,7 @@ public interface ReservationsUseCases {
 
     PageResponse<ReservationDTO> getReservationsByUserUUID(UUID userUUID, int page);
 
-    Void createReservation(ReservationDTO dto);
+    Void createReservation(CreateReservationDTO dto);
 
     Void updateReservationState(UUID reservationUUID, ReservationStateDTO state);
 }
