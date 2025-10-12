@@ -1,5 +1,5 @@
 # TriviReservas
-TriviReservas es una aplicación web para la gestión de alojamientos y reservas, con roles diferenciados para usuarios y anfitriones. Desarrollada con Spring Boot, JPA y Angular, ofrece una solución moderna y eficiente para la administración de estancias.
+TriviReservas es una aplicación web para la gestión de alojamientos y reservas, con roles diferenciados para usuarios y anfitriones. Desarrollada con Spring Boot, JPA y Angular, ofrece una solución moderna y eficiente para la administración de estancias. [Aquí](https://drive.google.com/drive/folders/1pk8VvxDJJ_3FA86arAKwOoi4SPHq4c3Q?usp=sharing) se puede ver la carpeta de Google Drive con los entregables.
 
 ## Entorno de Desarrollo
 <ul>
