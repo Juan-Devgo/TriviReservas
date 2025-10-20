@@ -2,6 +2,7 @@ package co.edu.uniquindio.trivireservas.application.service;
 
 import co.edu.uniquindio.trivireservas.application.dto.EmailDTO;
 import co.edu.uniquindio.trivireservas.application.dto.user.*;
+import co.edu.uniquindio.trivireservas.application.mapper.AbstractUserMapper;
 import co.edu.uniquindio.trivireservas.application.mapper.UserMapper;
 import co.edu.uniquindio.trivireservas.application.ports.in.AuthenticationUseCases;
 import co.edu.uniquindio.trivireservas.application.ports.in.EmailUseCase;
@@ -12,7 +13,9 @@ import co.edu.uniquindio.trivireservas.domain.AbstractUser;
 import co.edu.uniquindio.trivireservas.domain.Host;
 import co.edu.uniquindio.trivireservas.domain.User;
 import co.edu.uniquindio.trivireservas.infrastructure.entity.AbstractUserEntity;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -20,6 +23,7 @@ import org.springframework.stereotype.Service;
 import java.util.Map;
 import java.util.UUID;
 
+@Slf4j // Herramienta de Lombok para Logging
 @Service
 @RequiredArgsConstructor
 public class AuthenticationServices implements AuthenticationUseCases {
@@ -32,7 +36,7 @@ public class AuthenticationServices implements AuthenticationUseCases {
 
     private final JWTUtils jwtUtils;
 
-    private final UserMapper userMapper;
+    private final AbstractUserMapper abstractUserMapper;
 
     private final PasswordEncoder encoder;
 
@@ -48,17 +52,17 @@ public class AuthenticationServices implements AuthenticationUseCases {
     @Override
     public Void register(RegisterDTO dto) {
 
-        if(isEmailDuplicated(dto.email())) {
+        if (abstractUserRepositoryUseCases.doesEmailExist(dto.email())) {
             throw new RuntimeException("User already registered"); // TODO Asignar excepción
         }
 
-        if(!dto.phone().isBlank()) {
-            if (isPhoneDuplicated(dto.phone())) {
+        if (!dto.phone().isBlank()) {
+            if (abstractUserRepositoryUseCases.doesPhoneExist(dto.phone())) {
                 throw new RuntimeException("User already registered"); // TODO Asignar excepción
             }
         }
 
-        AbstractUserEntity newAbstractUser = userMapper.createAbstractUserEntity(dto);
+        AbstractUserEntity newAbstractUser = abstractUserMapper.createAbstractUserEntity(dto);
         newAbstractUser.setPassword(encoder.encode(dto.password()));
         return abstractUserRepositoryUseCases.createUser(newAbstractUser);
     }
@@ -67,7 +71,7 @@ public class AuthenticationServices implements AuthenticationUseCases {
     public TokenDTO hostLogin(LoginDTO dto, String mode) {
 
         // Inicialización de un Host.
-        Host host;
+        Host host = null;
 
         // Según el modo de inicio de sesión se busca el Host en el repositorio.
         if(mode.equals("email")) {
@@ -76,7 +80,11 @@ public class AuthenticationServices implements AuthenticationUseCases {
                 throw new RuntimeException("Invalid email"); // TODO Asignar excepción
             }
 
-            host = abstractUserRepositoryUseCases.getHostByEmail(dto.email()) ;
+            try {
+                host = abstractUserRepositoryUseCases.getHostByEmail(dto.email()) ;
+            } catch (EntityNotFoundException e) {
+                log.info("Host with email {} not found", dto.email());
+            }
 
         } else if (mode.equals("phone")) {
 
@@ -84,20 +92,23 @@ public class AuthenticationServices implements AuthenticationUseCases {
                 throw new RuntimeException("Invalid phone"); // TODO Asignar excepción
             }
 
-            host = abstractUserRepositoryUseCases.getHostByPhone(dto.phone());
+            try {
+                host = abstractUserRepositoryUseCases.getHostByPhone(dto.phone());
+            } catch (EntityNotFoundException e) {
+                log.info("Host with phone {} not found", dto.phone());
+            }
 
         } else {
             throw new RuntimeException("Invalid mode"); //TODO Asignar excepción
         }
 
-        // Se verifica que el usuario sí exista.
+        // Se verifica que el host exista y que la contraseña sea correcta.
         if(host == null) {
-            throw new RuntimeException("Host not found"); //TODO Asignar excepción
+            throw new RuntimeException("Invalid password or " + mode); //TODO Asignar excepción
         }
-
-        // Se verifica que sí sea la contraseña correcta.
+        
         if(!encoder.matches(dto.password(), host.getPassword())) {
-            throw new RuntimeException("Invalid password"); //TODO Asignar excepción
+            throw new RuntimeException("Invalid password or " + mode); //TODO Asignar excepción
         }
 
         // Se genera el token JWT.
@@ -110,7 +121,7 @@ public class AuthenticationServices implements AuthenticationUseCases {
     public TokenDTO userLogin(LoginDTO dto, String mode) {
 
         // Inicialización de un User.
-        User user;
+        User user = null;
 
         // Según el modo de inicio de sesión se busca el Host en el repositorio.
         if(mode.equals("email")) {
@@ -119,7 +130,11 @@ public class AuthenticationServices implements AuthenticationUseCases {
                 throw new RuntimeException("Invalid email"); // TODO Asignar excepción
             }
 
-            user = abstractUserRepositoryUseCases.getUserByEmail(dto.email()) ;
+            try {
+                user = abstractUserRepositoryUseCases.getUserByEmail(dto.email()) ;
+            } catch (EntityNotFoundException e) {
+                log.info("User with email {} not found", dto.email());
+            }
 
         } else if (mode.equals("phone")) {
 
@@ -127,20 +142,23 @@ public class AuthenticationServices implements AuthenticationUseCases {
                 throw new RuntimeException("Invalid phone"); // TODO Asignar excepción
             }
 
-            user = abstractUserRepositoryUseCases.getUserByPhone(dto.phone());
+            try {
+                user = abstractUserRepositoryUseCases.getUserByPhone(dto.phone());
+            } catch (EntityNotFoundException e) {
+                log.info("User with phone {} not found", dto.phone());
+            }
 
         } else {
             throw new RuntimeException("Invalid mode"); //TODO Asignar excepción
         }
 
-        // Se verifica que el usuario sí exista.
+        // Se verifica que el usuario exista y que la contraseña sea correcta.
         if(user == null) {
-            throw new RuntimeException("User not found"); //TODO Asignar excepción
+            throw new RuntimeException("Invalid password or " + mode); //TODO Asignar excepción
         }
-
-        // Se verifica que sí sea la contraseña correcta.
+        
         if(!encoder.matches(dto.password(), user.getPassword())) {
-            throw new RuntimeException("Invalid password"); //TODO Asignar excepción
+            throw new RuntimeException("Invalid password or " + mode); //TODO Asignar excepción
         }
 
         // Se genera el token JWT.
@@ -153,17 +171,7 @@ public class AuthenticationServices implements AuthenticationUseCases {
     @Override
     public Void restPasswordRequest(ResetPasswordRequestDTO dto) {
 
-        String code;
-
-        try {
-
-            code = generateResetCode(dto.email());
-
-        } catch (Exception e) {
-
-            throw new RuntimeException(e); // TODO Asignar excepción
-
-        }
+        String code = generateResetCode(dto.email());
 
         EmailDTO emailDTO = new EmailDTO("Cambio de Contraseña de TriviReservas", """
                 Buen día.
@@ -186,7 +194,24 @@ public class AuthenticationServices implements AuthenticationUseCases {
     }
 
     @Override
-    public Void resetPassword(UpdatePasswordDTO dto) {
+    public Void resetPassword(UpdatePasswordWithCodeDTO dto) {
+
+        if (passwordResetCodeRepositoryUseCases.validateCode(dto.email(), dto.code())) {
+
+            log.info("Password code with email: {} and code: {} successfully validated.", dto.email(), dto.code());
+
+            AbstractUser abstractUser = abstractUserRepositoryUseCases.getAbstractUserByEmail(dto.email());
+
+            abstractUserRepositoryUseCases.updatePassword(abstractUser.getUuid(), encoder.encode(dto.newPassword()));
+
+        } else {
+
+            log.info("Password code with email: {} and code: {} was invalid.", dto.email(), dto.code());
+
+            throw new ArithmeticException("The code expired or invalid code."); // TODO Asignar excepción
+
+        }
+
         return null;
     }
 
@@ -199,27 +224,11 @@ public class AuthenticationServices implements AuthenticationUseCases {
         );
     }
 
-    private boolean isEmailDuplicated(String email) {
-
-        // Verifica si existe un usuario o host con el email
-        return abstractUserRepositoryUseCases.getUserByEmail(email) != null || abstractUserRepositoryUseCases.getHostByEmail(email) != null;
-    }
-
-    private boolean isPhoneDuplicated(String phone) {
-
-        // Verifica si existe un usuario o host con el teléfono
-        return abstractUserRepositoryUseCases.getUserByPhone(phone) != null || abstractUserRepositoryUseCases.getHostByPhone(phone) != null;
-    }
-
-    private String generateResetCode(String email) throws Exception {
+    private String generateResetCode(String email) {
 
         // Genera un código aleatorio de 6 dígitos (De 100001 hasta 999999) y lo guarda en la base de datos
         String code = (String.valueOf((int) (Math.random() * (999999 - 100000 + 1) + 100000)));
         passwordResetCodeRepositoryUseCases.createCode(email, code);
-
-        if(!passwordResetCodeRepositoryUseCases.validateCode(email, code)) { // TODO preguntar si es necesario
-            throw new Exception("Error generating code");
-        }
 
         return code;
     }

@@ -36,9 +36,9 @@ public interface ReservationMapper {
 
     // ReservationDTO -> ReservationEntity
 
-    @Mapping(target = "userUUID", source = "userUUID", qualifiedByName = "uuidToString")
-    @Mapping(target = "lodgingUUID", source = "lodgingUUID", qualifiedByName = "uuidToString")
-    @Mapping(target = "creationDate", source = "creationDate", qualifiedByName = "localDateTimeToString")
+    @Mapping(target = "user", source = "userUUID", qualifiedByName = "uuidToUserEntity")
+    @Mapping(target = "lodging", source = "lodgingUUID", qualifiedByName = "uuidToLodgingEntity")
+    @Mapping(target = "creationDate", source = "creationDate", qualifiedByName = "stringToLocalDateTime")
     ReservationEntity toEntityFromDto(ReservationDTO dto);
 
     // ReservationEntity -> Reservation

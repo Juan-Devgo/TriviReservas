@@ -20,5 +20,5 @@ public interface AuthenticationUseCases {
 
     Void restPasswordRequest(ResetPasswordRequestDTO dto);
 
-    Void resetPassword(UpdatePasswordDTO dto);
+    Void resetPassword(UpdatePasswordWithCodeDTO dto);
 }

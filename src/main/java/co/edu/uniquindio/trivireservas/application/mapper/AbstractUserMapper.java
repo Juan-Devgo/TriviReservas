@@ -3,6 +3,7 @@ package co.edu.uniquindio.trivireservas.application.mapper;
 import co.edu.uniquindio.trivireservas.application.dto.user.RegisterDTO;
 import co.edu.uniquindio.trivireservas.application.dto.user.UpdateUserDTO;
 import co.edu.uniquindio.trivireservas.application.dto.user.UserDTO;
+import co.edu.uniquindio.trivireservas.domain.AbstractUser;
 import co.edu.uniquindio.trivireservas.domain.User;
 import co.edu.uniquindio.trivireservas.infrastructure.entity.*;
 import org.mapstruct.*;
@@ -13,51 +14,57 @@ import java.util.List;
          uses = {UserDetailsMapper.class, ReservationMapper.class, CommentMapper.class},
         unmappedTargetPolicy = ReportingPolicy.IGNORE
 )
-public interface UserMapper {
+public interface AbstractUserMapper {
 
     /*
-     * Auxiliar: convierte un AbstractUserEntity en un UserEntity
+     * Mapea un RegisterDTO a una entidad base AbstractUserEntity.
+     * Se usa principalmente como auxiliar en los otros mapeos.
      */
 
-    UserEntity castToUserEntity(AbstractUserEntity abstractUser);
+    @Mapping(target = "uuid", expression = "java(java.util.UUID.randomUUID())")
+    @Mapping(target = "details", ignore = true)
+    @Mapping(target = "state", expression = "java(co.edu.uniquindio.trivireservas.domain.UserState.ACTIVE)")
+    @Mapping(target = "createdAt", expression = "java(java.time.LocalDateTime.now())")
+    @Mapping(target = "role", expression = "java(co.edu.uniquindio.trivireservas.domain.UserRole.valueOf(dto.role()))")
+    AbstractUserEntity createAbstractUserEntity(RegisterDTO dto);
 
     /*
-     * Actualiza los datos de un usuario existente a partir del DTO.
-     * Solo se modifican los campos indicados.
+     * Crea una entidad de usuario normal (USER) a partir de RegisterDTO.
      */
 
-    @Mapping(target = "details.profilePicture", source = "profilePicture")
-    @Mapping(target = "details.description", source = "description")
-    @Mapping(target = "details.documents", source = "documents")
-    void updateUserEntity(UpdateUserDTO dto, @MappingTarget UserEntity entity);
+    @Mapping(target = "uuid", expression = "java(java.util.UUID.randomUUID())")
+    @Mapping(target = "details", ignore = true)
+    @Mapping(target = "state", expression = "java(co.edu.uniquindio.trivireservas.domain.UserState.ACTIVE)")
+    @Mapping(target = "createdAt", expression = "java(java.time.LocalDateTime.now())")
+    @Mapping(target = "role", expression = "java(co.edu.uniquindio.trivireservas.domain.UserRole.USER)")
+    @Mapping(target = "comments", ignore = true)
+    @Mapping(target = "reservations", ignore = true)
+    @Mapping(target = "favorites", ignore = true)
+    UserEntity createUserEntity(RegisterDTO dto);
 
-    // User -> UserDTO (abstract user)
+    /*
+     * Crea una entidad de host (HOST) a partir de RegisterDTO.
+     */
 
-    @Mapping(target = "role", defaultValue = "USER")
-    UserDTO toDtoFromDomain(User user);
+    @Mapping(target = "uuid", expression = "java(java.util.UUID.randomUUID())")
+    @Mapping(target = "details", ignore = true)
+    @Mapping(target = "state", expression = "java(co.edu.uniquindio.trivireservas.domain.UserState.ACTIVE)")
+    @Mapping(target = "createdAt", expression = "java(java.time.LocalDateTime.now())")
+    @Mapping(target = "role", expression = "java(co.edu.uniquindio.trivireservas.domain.UserRole.HOST)")
+    @Mapping(target = "lodgings", ignore = true)
+    HostEntity createHostEntity(RegisterDTO dto);
 
-    // AbstractUserEntity -> User
+    /*
+     * Auxiliar: decide dinámicamente qué tipo de entidad crear según el rol.
+     */
+
+    default AbstractUserEntity fromRegisterDTO(RegisterDTO dto) {
+        return dto.role().equals("HOST")
+                ? createHostEntity(dto)
+                : createUserEntity(dto);
+    }
 
 
-    User toDomainFromEntity(UserEntity entity);
-
-    // User -> AbstractUserEntity
-
-    @InheritInverseConfiguration
-    UserEntity toEntityFromDomain(User user);
-
-    //List<User> -> List<UserDTO>
-
-    List<UserDTO> toDtoFromDomainList(List<User> users);
-
-    // List<UserEntity> -> List<User>
-
-    List<User> toDomainFromEntityList(List<UserEntity> entities);
-
-    // List<User> -> List<UserEntity>
-
-    @InheritInverseConfiguration
-    List<UserEntity> toEntityFromDomainList(List<User> users);
 
     // --- Conversión de List<String> a List<DocumentEntity> ---
     default List<DocumentEntity> toDocumentEntities(List<String> urls) {

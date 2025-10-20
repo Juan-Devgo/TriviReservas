@@ -3,6 +3,7 @@ package co.edu.uniquindio.trivireservas.application.security;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -37,7 +38,11 @@ public class SecurityConfig {
                         request
                                 .requestMatchers("/api/auth/**").permitAll()
                                 .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
-                                // TODO configurar otros permisos.
+                                .requestMatchers(HttpMethod.GET, "/api/lodgings/**").permitAll()
+                                .requestMatchers("/api/users/**").authenticated()
+                                .requestMatchers(HttpMethod.POST, "/api/lodgings/**").hasAuthority("ROLE_HOST")
+                                .requestMatchers(HttpMethod.PUT, "/api/lodgings/**").hasAuthority("ROLE_HOST")
+                                .requestMatchers(HttpMethod.GET, "/api/users/").denyAll()
                                 .anyRequest().authenticated()
                 )
                 .exceptionHandling(exception -> exception.authenticationEntryPoint(new JwtAuthenticationEntryPoint()))

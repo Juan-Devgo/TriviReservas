@@ -17,11 +17,11 @@ public class EmailService implements EmailUseCase {
 
     private final SMTPProperties smtpProperties;
 
-    @Override
     @Async
+    @Override
     public void sendMail(EmailDTO emailDTO) throws Exception {
         Email email = EmailBuilder.startingBlank()
-                .from("SMTP_USERNAME")
+                .from(smtpProperties.getUsername())
                 .to(emailDTO.recipient())
                 .withSubject(emailDTO.subject())
                 .withPlainText(emailDTO.body())

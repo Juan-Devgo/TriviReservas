@@ -19,7 +19,6 @@ public interface LodgingJpaRepository extends JpaRepository<LodgingEntity, UUID>
     WHERE (:city IS NULL OR LOWER(loc.city) = LOWER(:city))
       AND (:minPrice IS NULL OR d.price >= :minPrice)
       AND (:maxPrice IS NULL OR d.price <= :maxPrice)
-      /* Si se reciben ambas fechas, asegurarse que NO exista una reserva activa que se solape */
       AND ((:checkIn IS NULL OR :checkOut IS NULL) OR NOT EXISTS (
           SELECT r
           FROM ReservationEntity r
@@ -45,7 +44,6 @@ public interface LodgingJpaRepository extends JpaRepository<LodgingEntity, UUID>
     FROM LodgingEntity l
     JOIN l.details d
     LEFT JOIN d.services s
-    /* Buscar por título, tipo o servicios (url) usando la cadena :search */
     WHERE (:search IS NULL OR :search = '' OR (
         LOWER(l.title) LIKE LOWER(CONCAT('%', :search, '%'))
         OR LOWER(CONCAT('', l.type)) LIKE LOWER(CONCAT('%', :search, '%'))

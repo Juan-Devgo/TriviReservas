@@ -669,7 +669,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UserDTO'
+              $ref: '#/components/schemas/RegisterDTO'
       responses:
         '201':
           description: Usuario creado satisfactoriamente.
@@ -1022,6 +1022,13 @@ paths:
       description: Obtiene una lista de todos los alojamientos disponibles en el sistema.
       operationId: getLodgings
       parameters:
+        - name: page
+          in: query
+          required: true
+          schema:
+            type: integer
+            default: 0
+          description: Obtener la página de la consulta
         - name: city
           in: query
           required: false
@@ -2479,6 +2486,26 @@ paths:
                     default: {code: "ERRIN-25", message: "Error inesperado al tratar de eliminar la imagen de la nube."}
 components:
   schemas:
+    RegisterDTO:
+      description: Esquema que representa el formulario para crear un usuario nuevo.
+      type: object
+      properties:
+        name:
+          type: string
+        role:
+          type: string
+          enum: [ USER, HOST ]
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+        phone:
+          type: string
+          format: number
+        birthdate:
+          type: string
+          format: date
     UserDTO:
       description: Esquema que representa un usuario para transferencia de datos.
       type: object
