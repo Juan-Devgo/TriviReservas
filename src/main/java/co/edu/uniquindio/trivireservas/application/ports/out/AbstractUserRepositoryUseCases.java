@@ -15,6 +15,16 @@ public interface AbstractUserRepositoryUseCases {
 
     PageResponse<AbstractUser> getUsers(int page);
 
+    boolean doesEmailExist(String email);
+
+    boolean doesPhoneExist(String phone);
+
+    AbstractUser getAbstractUserByUUID(UUID uuid);
+
+    AbstractUser getAbstractUserByEmail(String email);
+
+    AbstractUser getAbstractUserByPhone(String phone);
+
     User getUserByUUID(UUID uuid);
 
     User getUserByEmail(String email);

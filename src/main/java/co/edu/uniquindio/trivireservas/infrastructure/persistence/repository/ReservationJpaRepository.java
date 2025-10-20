@@ -32,6 +32,4 @@ public interface ReservationJpaRepository extends JpaRepository<ReservationEntit
     );
 
     Page<ReservationEntity> findAllByUser_Uuid(UUID userUUID, Pageable pageable);
-
-    void updateReservationState(UUID reservationUUID, ReservationState state);
 }

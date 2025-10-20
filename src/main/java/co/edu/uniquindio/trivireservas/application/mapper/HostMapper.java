@@ -17,6 +17,12 @@ import java.util.List;
 )
 public interface HostMapper {
 
+    /*
+     * Auxiliar: convierte un AbstractUserEntity en un HostEntity
+     */
+
+    HostEntity castToHostEntity(AbstractUserEntity abstractUser);
+
     // Actualizar un HostEntity
 
     @Mapping(target = "details.profilePicture", source = "profilePicture")

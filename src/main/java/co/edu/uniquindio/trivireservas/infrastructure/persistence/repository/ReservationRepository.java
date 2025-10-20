@@ -8,6 +8,7 @@ import co.edu.uniquindio.trivireservas.application.ports.out.ReservationReposito
 import co.edu.uniquindio.trivireservas.domain.Reservation;
 import co.edu.uniquindio.trivireservas.domain.ReservationState;
 import co.edu.uniquindio.trivireservas.infrastructure.entity.ReservationEntity;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
@@ -95,6 +97,17 @@ public class ReservationRepository implements ReservationRepositoryUseCases {
 
     @Override
     public void updateReservationState(UUID reservationUUID, ReservationState state) {
-        reservationJpaRepository.updateReservationState(reservationUUID, state);
+
+        Optional<ReservationEntity> optionalEntity = reservationJpaRepository.findById(reservationUUID);
+
+        if(optionalEntity.isEmpty()) {
+            throw new EntityNotFoundException(reservationUUID.toString());
+        }
+
+        ReservationEntity reservationEntity = optionalEntity.get();
+
+        reservationEntity.setState(state);
+
+        reservationJpaRepository.save(reservationEntity);
     }
 }

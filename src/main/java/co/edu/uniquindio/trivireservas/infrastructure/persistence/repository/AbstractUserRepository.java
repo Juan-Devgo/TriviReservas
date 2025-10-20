@@ -4,6 +4,7 @@ import co.edu.uniquindio.trivireservas.application.dto.PageResponse;
 import co.edu.uniquindio.trivireservas.application.dto.user.UpdatePasswordDTO;
 import co.edu.uniquindio.trivireservas.application.dto.user.UpdateUserDTO;
 import co.edu.uniquindio.trivireservas.application.dto.user.UserDTO;
+import co.edu.uniquindio.trivireservas.application.mapper.AbstractUserMapper;
 import co.edu.uniquindio.trivireservas.application.mapper.HostMapper;
 import co.edu.uniquindio.trivireservas.application.mapper.UserMapper;
 import co.edu.uniquindio.trivireservas.application.ports.out.AbstractUserRepositoryUseCases;
@@ -20,6 +21,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,6 +34,8 @@ import java.util.stream.Collectors;
 public class AbstractUserRepository implements AbstractUserRepositoryUseCases {
 
     private final AbstractUserJpaRepository abstractUserJpaRepository;
+
+    private final AbstractUserMapper abstractUserMapper;
 
     private final UserJpaRepository userJpaRepository;
 
@@ -71,6 +75,43 @@ public class AbstractUserRepository implements AbstractUserRepositoryUseCases {
     }
 
     @Override
+    public AbstractUser getAbstractUserByUUID(UUID uuid) {
+
+        Optional<AbstractUserEntity> optionalEntity = abstractUserJpaRepository.findById(uuid);
+
+        if(optionalEntity.isEmpty()) {
+            throw new EntityNotFoundException(uuid.toString());
+        }
+
+        return userMapper.toDomainFromEntity(userMapper.castToUserEntity(optionalEntity.get()));
+    }
+
+    @Override
+    public AbstractUser getAbstractUserByEmail(String email) {
+
+        Optional<AbstractUserEntity> optionalEntity = abstractUserJpaRepository.findByEmail(email);
+
+        if(optionalEntity.isEmpty()) {
+            throw new EntityNotFoundException(email);
+        }
+
+        return userMapper.toDomainFromEntity(userMapper.castToUserEntity(optionalEntity.get()));
+    }
+
+    @Override
+    public AbstractUser getAbstractUserByPhone(String phone) {
+
+        Optional<AbstractUserEntity> optionalEntity = abstractUserJpaRepository.findByPhone(phone);
+
+        if(optionalEntity.isEmpty()) {
+            throw new EntityNotFoundException(phone);
+        }
+
+        return userMapper.toDomainFromEntity(userMapper.castToUserEntity(optionalEntity.get()));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public User getUserByUUID(UUID uuid) {
 
         Optional<UserEntity> optionalEntity = userJpaRepository.findById(uuid);
@@ -79,10 +120,16 @@ public class AbstractUserRepository implements AbstractUserRepositoryUseCases {
             throw new EntityNotFoundException(uuid.toString());
         }
 
-        return userMapper.toDomainFromEntity(optionalEntity.get());
+        UserEntity entity = optionalEntity.get();
+
+        // Evita un LazyInitializationException al cargar los alojamientos dentro del contexto de Hibernate.
+        entity.getFavorites().size();
+
+        return userMapper.toDomainFromEntity(entity);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public User getUserByEmail(String email) {
 
         Optional<UserEntity> optionalEntity = userJpaRepository.findByEmail(email);
@@ -91,10 +138,16 @@ public class AbstractUserRepository implements AbstractUserRepositoryUseCases {
             throw new EntityNotFoundException(email);
         }
 
-        return userMapper.toDomainFromEntity(optionalEntity.get());
+        UserEntity entity = optionalEntity.get();
+
+        // Evita un LazyInitializationException al cargar los alojamientos dentro del contexto de Hibernate.
+        entity.getFavorites().size();
+
+        return userMapper.toDomainFromEntity(entity);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public User getUserByPhone(String phone) {
 
         Optional<UserEntity> optionalEntity = userJpaRepository.findByPhone(phone);
@@ -103,10 +156,16 @@ public class AbstractUserRepository implements AbstractUserRepositoryUseCases {
             throw new EntityNotFoundException(phone);
         }
 
-        return userMapper.toDomainFromEntity(optionalEntity.get());
+        UserEntity entity = optionalEntity.get();
+
+        // Evita un LazyInitializationException al cargar los alojamientos dentro del contexto de Hibernate.
+        entity.getFavorites().size();
+
+        return userMapper.toDomainFromEntity(entity);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Host getHostByUUID(UUID uuid) {
 
         Optional<HostEntity> optionalEntity = hostJpaRepository.findById(uuid);
@@ -115,10 +174,16 @@ public class AbstractUserRepository implements AbstractUserRepositoryUseCases {
             throw  new EntityNotFoundException(uuid.toString());
         }
 
-        return hostMapper.toDomainFromEntity(optionalEntity.get());
+        HostEntity entity = optionalEntity.get();
+
+        // Evita un LazyInitializationException al cargar los alojamientos dentro del contexto de Hibernate.
+        entity.getLodgings().size();
+
+        return hostMapper.toDomainFromEntity(entity);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Host getHostByEmail(String email) {
 
         Optional<HostEntity> optionalEntity = hostJpaRepository.findByEmail(email);
@@ -127,10 +192,16 @@ public class AbstractUserRepository implements AbstractUserRepositoryUseCases {
             throw new EntityNotFoundException(email);
         }
 
-        return hostMapper.toDomainFromEntity(optionalEntity.get());
+        HostEntity entity = optionalEntity.get();
+
+        // Evita un LazyInitializationException al cargar los alojamientos dentro del contexto de Hibernate.
+        entity.getLodgings().size();
+
+        return hostMapper.toDomainFromEntity(entity);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Host getHostByPhone(String phone) {
 
         Optional<HostEntity> optionalEntity = hostJpaRepository.findByPhone(phone);
@@ -139,7 +210,12 @@ public class AbstractUserRepository implements AbstractUserRepositoryUseCases {
             throw new EntityNotFoundException(phone);
         }
 
-        return hostMapper.toDomainFromEntity(optionalEntity.get());
+        HostEntity entity = optionalEntity.get();
+
+        // Evita un LazyInitializationException al cargar los alojamientos dentro del contexto de Hibernate.
+        entity.getLodgings().size();
+
+        return hostMapper.toDomainFromEntity(entity);
     }
 
     @Override
@@ -147,17 +223,45 @@ public class AbstractUserRepository implements AbstractUserRepositoryUseCases {
 
         if(user.getRole().equals(UserRole.USER)) {
 
-            userJpaRepository.save((UserEntity) user);
+            userJpaRepository.save(userMapper.castToUserEntity(user));
 
         } else if(user.getRole().equals(UserRole.HOST)) {
 
-            hostJpaRepository.save((HostEntity) user);
+            hostJpaRepository.save(hostMapper.castToHostEntity(user));
 
         } else {
             throw new IllegalArgumentException("Invalid role");
         }
 
         return null;
+    }
+
+    @Override
+    public boolean doesEmailExist(String email) {
+
+        Optional<HostEntity> optionalHostEntity = hostJpaRepository.findByEmail(email);
+
+        boolean hostExist = optionalHostEntity.isPresent();
+
+        Optional<UserEntity> optionalUserEntity = userJpaRepository.findByEmail(email);
+
+        boolean userExist = optionalUserEntity.isPresent();
+
+        return userExist || hostExist;
+    }
+
+    @Override
+    public boolean doesPhoneExist(String phone) {
+
+        Optional<HostEntity> optionalHostEntity = hostJpaRepository.findByPhone(phone);
+
+        boolean hostExist = optionalHostEntity.isPresent();
+
+        Optional<UserEntity> optionalUserEntity = userJpaRepository.findByPhone(phone);
+
+        boolean userExist = optionalUserEntity.isPresent();
+
+        return userExist || hostExist;
     }
 
     @Override
