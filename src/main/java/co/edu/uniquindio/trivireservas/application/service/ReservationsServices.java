@@ -11,11 +11,13 @@ import co.edu.uniquindio.trivireservas.application.ports.out.ReservationReposito
 import co.edu.uniquindio.trivireservas.domain.Reservation;
 import co.edu.uniquindio.trivireservas.domain.ReservationState;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ReservationsServices implements ReservationsUseCases {

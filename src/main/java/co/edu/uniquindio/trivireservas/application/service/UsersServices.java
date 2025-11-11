@@ -5,6 +5,7 @@ import co.edu.uniquindio.trivireservas.application.dto.lodging.LodgingDTO;
 import co.edu.uniquindio.trivireservas.application.dto.user.UpdatePasswordDTO;
 import co.edu.uniquindio.trivireservas.application.dto.user.UpdateUserDTO;
 import co.edu.uniquindio.trivireservas.application.dto.user.UserDTO;
+import co.edu.uniquindio.trivireservas.application.exception.ForbiddenActionException;
 import co.edu.uniquindio.trivireservas.application.mapper.HostMapper;
 import co.edu.uniquindio.trivireservas.application.mapper.LodgingMapper;
 import co.edu.uniquindio.trivireservas.application.mapper.UserMapper;
@@ -13,15 +14,15 @@ import co.edu.uniquindio.trivireservas.application.ports.out.AbstractUserReposit
 import co.edu.uniquindio.trivireservas.application.ports.out.LodgingRepositoryUseCases;
 import co.edu.uniquindio.trivireservas.domain.*;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UsersServices implements UsersUseCases {
@@ -37,6 +38,7 @@ public class UsersServices implements UsersUseCases {
     private final LodgingMapper lodgingMapper;
 
     private final PasswordEncoder encoder;
+    private final AuthenticationServices authenticationServices;
 
     @Override
     public PageResponse<UserDTO> getUsers(int page) {
@@ -105,11 +107,28 @@ public class UsersServices implements UsersUseCases {
 
     @Override
     public Void updateUser(UUID userUUID, UpdateUserDTO dto) {
+
+        // Se comprueba que el usuario autenticado es el mismo que el que se quiere actualizar
+
+        if(!authenticationServices.getUUIDAuthenticatedUser().equals(userUUID)) {
+            throw new ForbiddenActionException("El usuario autenticado no es el mismo que se quiere actualizar.");
+        }
+
         return abstractUserRepositoryUseCases.updateUser(userUUID, dto);
     }
 
     @Override
     public Void updatePasswordUser(UUID userUUID, UpdatePasswordDTO dto) {
+
+        // Se comprueba que el usuario autenticado es el mismo que el que se quiere actualizar
+
+        UUID authenticatedUserUUID = authenticationServices.getUUIDAuthenticatedUser();
+
+        if(!authenticatedUserUUID.equals(userUUID)) {
+            log.warn("The authenticated user with UUID {} tried to update the password of another user", authenticatedUserUUID);
+            throw new ForbiddenActionException("El usuario autenticado no es el mismo que se quiere actualizar.");
+        }
+
         return abstractUserRepositoryUseCases.updatePassword(userUUID, encoder.encode(dto.codeOrPassword()));
     }
 }

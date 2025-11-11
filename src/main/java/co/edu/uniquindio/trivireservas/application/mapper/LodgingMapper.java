@@ -45,8 +45,8 @@ public interface LodgingMapper {
 
     // CreateLodgingDTO -> Domain
 
-    @InheritInverseConfiguration
-    Lodging toDomainFromCreationDto(CreateLodgingDTO dto);
+//    @InheritInverseConfiguration
+//    Lodging toDomainFromCreationDto(CreateLodgingDTO dto);
 
     // LodgingEntity -> Lodging
 
@@ -88,10 +88,15 @@ public interface LodgingMapper {
 
     List<LodgingEntity> toEntityFromDomainList(List<Lodging> lodgings);
 
+    // Se asigna la referencia del alojamiento en los detalles y la ubicación después del mapeo
+
     @AfterMapping
     default void afterMapping(@MappingTarget LodgingEntity lodgingEntity) {
 
         lodgingEntity.getDetails().setLodging(lodgingEntity);
+        lodgingEntity.getDetails().getLocation().setLodging(lodgingEntity.getDetails());
+        lodgingEntity.getDetails().getServices().forEach(s -> s.setLodging(lodgingEntity.getDetails()));
+        lodgingEntity.getDetails().getPictures().forEach(p -> p.setLodging(lodgingEntity.getDetails()));
     }
 
     @Named("uuidToAbstractUserEntity")

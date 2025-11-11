@@ -19,9 +19,9 @@ public interface ReservationJpaRepository extends JpaRepository<ReservationEntit
         SELECT r FROM ReservationEntity r
         WHERE
             (r.lodging.uuid = :lodgingUUID)
-        AND (:state IS NULL OR r.state = :state)
-        AND (:checkIn IS NULL OR r.checkIn >= :checkIn)
-        AND (:checkOut IS NULL OR r.checkOut <= :checkOut)
+        AND (:state = '' OR (r.state IS NOT NULL AND LOWER(r.state) = LOWER(:state)))
+        AND (r.checkOut <= :checkOut)
+        AND (r.checkIn >= :checkIn)
     """)
     Page<ReservationEntity> findAllByFilters(
             @Param("lodgingUUID") UUID lodgingUUID,

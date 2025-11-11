@@ -5,6 +5,7 @@ import co.edu.uniquindio.trivireservas.application.dto.lodging.CreateCommentDTO;
 import co.edu.uniquindio.trivireservas.application.mapper.CommentMapper;
 import co.edu.uniquindio.trivireservas.application.ports.out.CommentRepositoryUseCases;
 import co.edu.uniquindio.trivireservas.application.service.AuthenticationServices;
+import co.edu.uniquindio.trivireservas.domain.Comment;
 import co.edu.uniquindio.trivireservas.infrastructure.entity.AbstractUserEntity;
 import co.edu.uniquindio.trivireservas.infrastructure.entity.CommentEntity;
 import co.edu.uniquindio.trivireservas.infrastructure.entity.LodgingEntity;
@@ -24,6 +25,15 @@ public class CommentRepository implements CommentRepositoryUseCases {
     private final CommentJpaRepository commentJpaRepository;
 
     private final CommentMapper commentMapper;
+
+    @Override
+    public Comment getComment(UUID commentUUID) {
+
+        CommentEntity commentEntity = commentJpaRepository.findById(commentUUID)
+                .orElseThrow(() -> new EntityNotFoundException(commentUUID.toString()));
+
+        return commentMapper.toDomain(commentEntity);
+    }
 
     @Override
     public Void addCommentLodging(CreateCommentDTO dto) {
@@ -48,7 +58,7 @@ public class CommentRepository implements CommentRepositoryUseCases {
                 .orElseThrow(() -> new EntityNotFoundException(commentUUID.toString()));
 
         if (!commentEntity.getLodging().getUuid().equals(lodgingUUID)) {
-            throw new IllegalArgumentException("The comment does not belong to the specified lodging");
+            throw new IllegalArgumentException("The comment does not belong to the specified lodging"); // TODO Asignar excepción
         }
 
         commentEntity.setResponse(response);

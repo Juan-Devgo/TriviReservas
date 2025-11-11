@@ -8,7 +8,7 @@ import org.hibernate.validator.constraints.Length;
 public record LodgingDTO (
         @NotBlank String uuid,
         @NotBlank @Length(min = 4, max = 128) String title,
-        @NotBlank String hostUUID, // TODO poner en open API
+        @NotBlank String hostUUID,
         @NotBlank @Length(min = 4, max = 512) String description,
         @NotBlank @Pattern(regexp = "(HUT|FARM|APARTMENT|HOUSE|HOTEL)") String type,
         @NotBlank @Pattern(regexp = "(ACTIVE|DELETED)") String state,

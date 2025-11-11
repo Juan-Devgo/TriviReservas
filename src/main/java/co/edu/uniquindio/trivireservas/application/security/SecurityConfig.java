@@ -36,13 +36,34 @@ public class SecurityConfig {
                         sesion.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(request ->
                         request
-                                .requestMatchers("/api/auth/**").permitAll()
-                                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                                // Endpoints públicos
+                                .requestMatchers("/api/auth/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
                                 .requestMatchers(HttpMethod.GET, "/api/lodgings/**").permitAll()
-                                .requestMatchers("/api/users/**").authenticated()
-                                .requestMatchers(HttpMethod.POST, "/api/lodgings/**").hasAuthority("ROLE_HOST")
-                                .requestMatchers(HttpMethod.PUT, "/api/lodgings/**").hasAuthority("ROLE_HOST")
-                                .requestMatchers(HttpMethod.GET, "/api/users/").denyAll()
+                                .requestMatchers(HttpMethod.GET, "/api/users/**").permitAll()
+
+                                // Endpoints restringidos
+
+                                // Usuarios
+
+                                .requestMatchers(HttpMethod.GET, "/api/users").authenticated()
+                                .requestMatchers(HttpMethod.GET, "/api/users/**/favorites").authenticated()
+                                .requestMatchers(HttpMethod.GET, "/api/users/**/recommendations").authenticated()
+                                .requestMatchers(HttpMethod.PATCH, "/api/users/**").authenticated()
+                                .requestMatchers(HttpMethod.PATCH, "/api/users/{userUUID}/password").authenticated()
+
+                                // Alojamientos
+                                .requestMatchers(HttpMethod.POST, "/api/lodgings").hasRole("HOST")
+                                .requestMatchers(HttpMethod.PUT, "/api/lodgings/**").hasRole("HOST")
+                                .requestMatchers(HttpMethod.DELETE, "/api/lodgings/**").hasRole("HOST")
+                                .requestMatchers(HttpMethod.PATCH, "/api/lodgings/**/comments").authenticated()
+                                .requestMatchers(HttpMethod.PATCH, "/api/lodgings/**/comments/**/host_response").hasRole("HOST")
+
+                                // Reservas
+                                .requestMatchers(HttpMethod.GET, "/api/reservations/**").authenticated()
+                                .requestMatchers(HttpMethod.POST, "/api/reservations/**").hasRole("USER")
+                                .requestMatchers(HttpMethod.PATCH, "/api/reservations/**").authenticated()
+
+                                // Resto de Endpoints
                                 .anyRequest().authenticated()
                 )
                 .exceptionHandling(exception -> exception.authenticationEntryPoint(new JwtAuthenticationEntryPoint()))

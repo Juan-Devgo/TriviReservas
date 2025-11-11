@@ -33,6 +33,7 @@ public class AuthenticationController {
 
     @PostMapping("/host/login/{mode}")
     public ResponseEntity<ResponseDTO<TokenDTO>> loginHost(@PathVariable String mode, @Valid @RequestBody LoginDTO dto) {
+        log.info("Request received to authenticate a host. (POST /api/login/{})", mode);
         return ResponseEntity.status(200).body(new ResponseDTO<>(false,
                 "Autenticación exitosa, token JWT generado.", authenticationUseCases.hostLogin(dto, mode)));
     }

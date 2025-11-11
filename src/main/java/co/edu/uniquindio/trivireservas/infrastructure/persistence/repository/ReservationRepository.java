@@ -38,9 +38,9 @@ public class ReservationRepository implements ReservationRepositoryUseCases {
 
         Page<ReservationEntity> reservationsPage = reservationJpaRepository.findAllByFilters(
                 lodgingUUID,
-                filters.state(),
-                LocalDateTime.parse(filters.checkIn(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")),
-                LocalDateTime.parse(filters.checkOut(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")),
+                (filters.state() == null ? "" : filters.state()),
+                (filters.checkIn() == null ? LocalDateTime.now() : filters.checkIn()),
+                (filters.checkOut() == null ? LocalDateTime.of(2050, 1, 1, 0, 0) : filters.checkOut()),
                 pageable
         );
 

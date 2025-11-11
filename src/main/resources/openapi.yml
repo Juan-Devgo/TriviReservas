@@ -1105,7 +1105,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/LodgingDTO'
+              $ref: '#/components/schemas/CreateLodgingDTO'
       responses:
         '201':
           description: Alojamiento creado satisfactoriamente.
@@ -1989,7 +1989,7 @@ paths:
                     default: {code: "ERRIN-18", message: "Error inesperado al tratar de agregar la respuesta al comentario."}
       security:
         - bearerAuth: []
-  /api/reservations/{lodging_uuid}:
+  /api/reservations/lodging/{lodging_uuid}:
     get:
       tags:
         - Reservation
@@ -2105,6 +2105,102 @@ paths:
                     default: {code: "ERRIN-19", message: "Error inesperado al tratar de obtener las reservas."}
       security:
         - bearerAuth: []
+  /api/reservations/user/{user_uuid}:
+    get:
+      tags:
+        - Reservation
+      summary: Obtener reservas de un usuario específico
+      description: Obtiene una lista de reservas asociadas a un usuario específico.
+      operationId: getReservationsByUserUUID
+      parameters:
+        - name: user_uuid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: UUID del usuario para el cual se están obteniendo las reservas.
+      responses:
+        '200':
+          description: Reservas obtenidas
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: false
+                  message:
+                    type: string
+                    default: "Reservas obtenidas satisfactoriamente."
+                  content:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ReservationDTO'
+        '401':
+          description: No autorizado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: true
+                  message:
+                    type: string
+                    default: "No autorizado."
+                  content:
+                    default: { code: "RYA06-1", message: "No autorizado para esta acción. (JWT ausente)" }
+        '403':
+          description: Prohibido
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: true
+                  message:
+                    type: string
+                    default: "Prohibido."
+                  content:
+                    default: { code: "RYA06-2", message: "Prohibido para esta acción (JWT inválido o sin permisos)" }
+        '404':
+          description: Usuario no encontrado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: true
+                  message:
+                    type: string
+                    default: "Usuario no encontrado."
+                  content:
+                    default: { code: "RYA06-3", message: "No se encontró el usuario especificado para las reserva." }
+        default:
+          description: Error inesperado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    default: true
+                  message:
+                    type: string
+                    default: "Error inesperado."
+                  content:
+                    default: { code: "ERRIN-21", message: "Error inesperado al tratar de obtener las reservas." }
+      security:
+        - bearerAuth: []
+  /api/reservations/{lodging_uuid}:
     post:
       tags:
         - Reservation
@@ -2186,101 +2282,6 @@ paths:
                     default: "Error inesperado."
                   content:
                     default: {code: "ERRIN-20", message: "Error inesperado al tratar de crear una reserva."}
-      security:
-        - bearerAuth: []
-  /api/reservations/{user_uuid}:
-    get:
-      tags:
-        - Reservation
-      summary: Obtener reservas de un usuario específico
-      description: Obtiene una lista de reservas asociadas a un usuario específico.
-      operationId: getReservationsByUserUUID
-      parameters:
-        - name: user_uuid
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-          description: UUID del usuario para el cual se están obteniendo las reservas.
-      responses:
-        '200':
-          description: Reservas obtenidas
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  error:
-                    type: boolean
-                    default: false
-                  message:
-                    type: string
-                    default: "Reservas obtenidas satisfactoriamente."
-                  content:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/ReservationDTO'
-        '401':
-          description: No autorizado
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  error:
-                    type: boolean
-                    default: true
-                  message:
-                    type: string
-                    default: "No autorizado."
-                  content:
-                    default: {code: "RYA06-1", message: "No autorizado para esta acción. (JWT ausente)"}
-        '403':
-          description: Prohibido
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  error:
-                    type: boolean
-                    default: true
-                  message:
-                    type: string
-                    default: "Prohibido."
-                  content:
-                    default: {code: "RYA06-2", message: "Prohibido para esta acción (JWT inválido o sin permisos)"}
-        '404':
-          description: Usuario no encontrado
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  error:
-                    type: boolean
-                    default: true
-                  message:
-                    type: string
-                    default: "Usuario no encontrado."
-                  content:
-                    default: {code: "RYA06-3", message: "No se encontró el usuario especificado para las reserva."}
-        default:
-          description: Error inesperado
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  error:
-                    type: boolean
-                    default: true
-                  message:
-                    type: string
-                    default: "Error inesperado."
-                  content:
-                    default: {code: "ERRIN-21", message: "Error inesperado al tratar de obtener las reservas."}
       security:
         - bearerAuth: []
   /api/reservations/{reservation_uuid}/state:
@@ -2568,10 +2569,73 @@ components:
       description: Esquema que representa un alojamiento para transferencia de datos.
       type: object
       properties:
+        uuid:
+          type: string
+          format: uuid
+        title:
+          type: string
+        hostUUID:
+          type: string
+          format: uuid
+        description:
+          type: string
+        type:
+          type: string
+          enum: [ HUT|FARM|APARTMENT|HOUSE|HOTEL ]
+        state:
+          type: string
+          enum: [ ACTIVE, DELETED ]
+        details:
+          type: object
+          properties:
+            lodgingUUID:
+              type: string
+              format: uuid
+            location:
+              type: object
+              properties:
+                lodgingUUID:
+                  type: string
+                  format: uuid
+                city:
+                  type: string
+                address:
+                  type: string
+                latitude:
+                  type: number
+                  format: float
+                longitude:
+                  type: number
+                  format: float
+            price:
+              type: number
+              format: float
+            services:
+              type: array
+              items:
+                type: string
+            pictures:
+              type: array
+              items:
+                type: string
+                format: url
+                example: "https://example.com/image.jpg"
+      required:
+        - title
+        - description
+        - type
+        - details
+    CreateLodgingDTO:
+      description: Esquema que representa un alojamiento para crear.
+      type: object
+      properties:
         title:
           type: string
         description:
           type: string
+        type:
+          type: string
+          enum: [HUT|FARM|APARTMENT|HOUSE|HOTEL]
         details:
           type: object
           properties:
@@ -2604,6 +2668,7 @@ components:
       required:
         - title
         - description
+        - type
         - details
     LodgingMetricsDTO:
       description: Esquema que representa las métricas de un alojamiento para transferencia de datos.

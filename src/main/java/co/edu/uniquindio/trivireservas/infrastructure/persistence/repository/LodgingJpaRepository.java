@@ -12,23 +12,24 @@ import java.util.UUID;
 public interface LodgingJpaRepository extends JpaRepository<LodgingEntity, UUID> {
 
     @Query("""
-    SELECT l
-    FROM LodgingEntity l
-    JOIN l.details d
-    JOIN d.location loc
-    WHERE (:city IS NULL OR LOWER(loc.city) = LOWER(:city))
-      AND (:minPrice IS NULL OR d.price >= :minPrice)
-      AND (:maxPrice IS NULL OR d.price <= :maxPrice)
-      AND ((:checkIn IS NULL OR :checkOut IS NULL) OR NOT EXISTS (
-          SELECT r
-          FROM ReservationEntity r
-          WHERE r.lodging = l
-            AND r.state NOT IN (co.edu.uniquindio.trivireservas.domain.ReservationState.CANCELLED,
-                               co.edu.uniquindio.trivireservas.domain.ReservationState.COMPLETED)
-            AND r.checkIn < :checkOut
-            AND r.checkOut > :checkIn
-      ))
-    ORDER BY l.creationDate DESC
+    SELECT l FROM LodgingEntity l
+        JOIN l.details d
+        JOIN d.location loc
+        WHERE
+          (:city = '' OR (loc.city IS NOT NULL AND LOWER(loc.city) = LOWER(:city)))
+          AND (d.price >= :minPrice)
+          AND (d.price <= :maxPrice)
+          AND NOT EXISTS (
+                   SELECT r FROM ReservationEntity r
+                   WHERE r.lodging = l
+                     AND r.state NOT IN (
+                         co.edu.uniquindio.trivireservas.domain.ReservationState.CANCELLED,
+                         co.edu.uniquindio.trivireservas.domain.ReservationState.COMPLETED
+                     )
+                     AND r.checkIn <= :checkOut
+                     AND r.checkOut >= :checkIn
+               )
+        ORDER BY l.creationDate DESC
 """)
     Page<LodgingEntity> getLodgingsWithFilters(
             @Param("city") String city,
@@ -61,7 +62,7 @@ public interface LodgingJpaRepository extends JpaRepository<LodgingEntity, UUID>
     JOIN u.favorites l
     WHERE u.uuid = :userUUID
 """)
-    Page<LodgingEntity> findFavoritesByUserUUID(UUID userUUID, Pageable pageable);
+    Page<LodgingEntity> findFavoritesByUserUUID(@Param("userUUID") UUID userUUID, Pageable pageable);
 
     @Query("""
     SELECT l
@@ -72,8 +73,8 @@ public interface LodgingJpaRepository extends JpaRepository<LodgingEntity, UUID>
         JOIN u.favorites fav
         WHERE u.uuid = :userUUID
     )
-    GROUP BY l
+    GROUP BY l.uuid
     ORDER BY AVG(c.valuation) DESC
 """)
-    Page<LodgingEntity> findRecommendedByUserUUID(UUID userUUID, Pageable pageable);
+    Page<LodgingEntity> findRecommendedByUserUUID(@Param("userUUID") UUID userUUID, Pageable pageable);
 }

@@ -40,6 +40,17 @@ public class JWTFilter extends OncePerRequestFilter {
             return;
         }
 
+        String path = request.getRequestURI();
+
+        // Saltar filtro para endpoints públicos
+        if (path.startsWith("/api/auth")
+                || path.startsWith("/swagger-ui")
+                || path.startsWith("/v3/api-docs")
+                || (path.startsWith("/api/lodgings") && request.getMethod().equals("GET"))) {
+            chain.doFilter(request, response);
+            return;
+        }
+
         try {
 
             Jws<Claims> payload = jwtUtils.parseJwt(token);

@@ -46,6 +46,8 @@ public class AuthenticationServices implements AuthenticationUseCases {
                 (org.springframework.security.core.userdetails.User) SecurityContextHolder
                         .getContext().getAuthentication().getPrincipal();
 
+        log.info("Authenticated user: {}", user.getUsername());
+
         return UUID.fromString(user.getUsername());
     }
 
@@ -76,9 +78,9 @@ public class AuthenticationServices implements AuthenticationUseCases {
         // Según el modo de inicio de sesión se busca el Host en el repositorio.
         if(mode.equals("email")) {
 
-            if(dto.email().isBlank()) {
-                throw new RuntimeException("Invalid email"); // TODO Asignar excepción
-            }
+            if(dto.email() == null) throw new RuntimeException("Invalid email"); // TODO Asignar excepción
+
+            if(dto.email().isBlank()) throw new RuntimeException("Invalid email"); // TODO Asignar excepción
 
             try {
                 host = abstractUserRepositoryUseCases.getHostByEmail(dto.email()) ;
@@ -88,9 +90,9 @@ public class AuthenticationServices implements AuthenticationUseCases {
 
         } else if (mode.equals("phone")) {
 
-            if(dto.phone().isBlank()) {
-                throw new RuntimeException("Invalid phone"); // TODO Asignar excepción
-            }
+            if(dto.phone() == null) throw new RuntimeException("Invalid email"); // TODO Asignar excepción
+
+            if(dto.phone().isBlank()) throw new RuntimeException("Invalid phone"); // TODO Asignar excepción
 
             try {
                 host = abstractUserRepositoryUseCases.getHostByPhone(dto.phone());
@@ -220,7 +222,7 @@ public class AuthenticationServices implements AuthenticationUseCases {
                 "email", abstractUser.getEmail(),
                 "phone", abstractUser.getPhone(),
                 "name", abstractUser.getName(),
-                "role", "ROLE_" + abstractUser.getRole().name()
+                "role", abstractUser.getRole().name()
         );
     }
 

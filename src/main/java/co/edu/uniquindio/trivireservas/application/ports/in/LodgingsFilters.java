@@ -1,7 +1,6 @@
 package co.edu.uniquindio.trivireservas.application.ports.in;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 public record  LodgingsFilters(
         String city,
@@ -13,7 +12,18 @@ public record  LodgingsFilters(
     public boolean validPriceRange() {
         boolean validPrice = true;
 
+        if (minPrice != null && maxPrice == null) {
+
+            validPrice = minPrice >= 0;
+        }
+
+        if (minPrice == null && maxPrice != null) {
+
+            validPrice = maxPrice >= 0;
+        }
+
         if (minPrice != null && maxPrice != null) {
+
             validPrice = minPrice <= maxPrice;
         }
 

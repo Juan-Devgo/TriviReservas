@@ -1,5 +1,7 @@
 package co.edu.uniquindio.trivireservas.application.mapper;
 
+import co.edu.uniquindio.trivireservas.application.dto.lodging.CreateLocationDTO;
+import co.edu.uniquindio.trivireservas.application.dto.lodging.CreateLodgingDetailsDTO;
 import co.edu.uniquindio.trivireservas.application.dto.lodging.LocationDTO;
 import co.edu.uniquindio.trivireservas.domain.Location;
 import co.edu.uniquindio.trivireservas.infrastructure.entity.LocationEntity;
@@ -8,6 +10,11 @@ import org.mapstruct.*;
 
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING, unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface LocationMapper {
+
+    // CreateLocationDTO -> LocationEntity (Crear un alojamiento)
+
+    @Mapping(target = "lodging", ignore = true)
+    LocationEntity createLodgingDetailsEntity (CreateLocationDTO dto);
 
     // Location -> LocationDTO
 

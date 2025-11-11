@@ -9,14 +9,17 @@ import co.edu.uniquindio.trivireservas.domain.LodgingState;
 import co.edu.uniquindio.trivireservas.infrastructure.entity.LodgingEntity;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
+@Slf4j
 @Repository
 @RequiredArgsConstructor
 public class LodgingRepository implements LodgingRepositoryUseCases {
@@ -29,11 +32,11 @@ public class LodgingRepository implements LodgingRepositoryUseCases {
         Pageable pageable = PageRequest.of(page, 10);
 
         Page<LodgingEntity> lodgingsPage = lodgingJpaRepository.getLodgingsWithFilters(
-                filters.city(),
-                filters.minPrice(),
-                filters.maxPrice(),
-                filters.checkIn(),
-                filters.checkOut(),
+                (filters.city() == null ? "" : filters.city()),
+                (filters.minPrice() == null ? 0 : filters.minPrice()),
+                (filters.maxPrice() == null ? 10000000 : filters.maxPrice()),
+                (filters.checkIn() == null ? LocalDateTime.now() : filters.checkIn()),
+                (filters.checkOut() == null ? LocalDateTime.of(2050, 1, 1, 0, 0) : filters.checkOut()),
                 pageable
         );
 
@@ -138,6 +141,7 @@ public class LodgingRepository implements LodgingRepositoryUseCases {
     @Override
     public Void createLodging(LodgingEntity entity) {
         lodgingJpaRepository.save(entity);
+        log.info("Lodging created with title: {}", entity.getTitle());
         return null;
     }
 
