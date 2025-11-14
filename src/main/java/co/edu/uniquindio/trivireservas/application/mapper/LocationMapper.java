@@ -37,9 +37,4 @@ public interface LocationMapper {
     // LocationEntity -> LocationDTO
 
     LocationDTO toDto(LocationEntity entity);
-
-    @AfterMapping
-    default void setLodging(@MappingTarget LocationEntity entity, LodgingDetailsEntity lodging) {
-        entity.setLodging(lodging);
-    }
 }

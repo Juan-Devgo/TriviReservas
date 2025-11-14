@@ -2,7 +2,10 @@ package co.edu.uniquindio.trivireservas.application.service;
 
 import co.edu.uniquindio.trivireservas.application.dto.PageResponse;
 import co.edu.uniquindio.trivireservas.application.dto.lodging.*;
+import co.edu.uniquindio.trivireservas.application.exception.EntityNotFoundException;
 import co.edu.uniquindio.trivireservas.application.exception.ForbiddenActionException;
+import co.edu.uniquindio.trivireservas.application.mapper.LocationMapper;
+import co.edu.uniquindio.trivireservas.application.mapper.LodgingDetailsMapper;
 import co.edu.uniquindio.trivireservas.application.mapper.LodgingMapper;
 import co.edu.uniquindio.trivireservas.application.ports.in.AuthenticationUseCases;
 import co.edu.uniquindio.trivireservas.application.ports.in.LodgingsFilters;
@@ -12,11 +15,13 @@ import co.edu.uniquindio.trivireservas.application.ports.out.LodgingRepositoryUs
 import co.edu.uniquindio.trivireservas.domain.Comment;
 import co.edu.uniquindio.trivireservas.domain.Lodging;
 import co.edu.uniquindio.trivireservas.infrastructure.entity.HostEntity;
+import co.edu.uniquindio.trivireservas.infrastructure.entity.LocationEntity;
+import co.edu.uniquindio.trivireservas.infrastructure.entity.LodgingDetailsEntity;
 import co.edu.uniquindio.trivireservas.infrastructure.entity.LodgingEntity;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
@@ -30,6 +35,8 @@ public class LodgingsServices implements LodgingsUseCases {
     private final CommentRepositoryUseCases commentRepositoryUseCases;
 
     private final LodgingMapper lodgingMapper;
+    private final LodgingDetailsMapper lodgingDetailsMapper;
+    private final LocationMapper locationMapper;
     private final AuthenticationUseCases authenticationUseCases;
 
     // Obtener un alojamientoDTO
@@ -129,20 +136,34 @@ public class LodgingsServices implements LodgingsUseCases {
     // Crear un alojamientoDTO
 
     @Override
+    @Transactional
     public Void createLodging(CreateLodgingDTO dto) {
 
-        LodgingEntity entity = lodgingMapper.createLodgingEntity(dto); // Transforma el DTO a entidad
+        LocationEntity locationEntity = locationMapper.createLodgingDetailsEntity(dto.details().location()); // Transforma el DTO de Location a entidad
+
+        LodgingDetailsEntity lodgingDetailsEntity = lodgingDetailsMapper.createLodgingDetailsEntity(dto.details()); // Transforma el DTO de LodgingDetails a entidad
+
+        LodgingEntity lodgingEntity = lodgingMapper.createLodgingEntity(dto); // Transforma el DTO de Lodging a entidad
 
         UUID hostUUID = authenticationUseCases.getUUIDAuthenticatedUser(); // Se obtiene el UUID del host autenticado
 
         HostEntity host = new HostEntity();
         host.setUuid(hostUUID);
 
-        entity.setHost(host); // Asigna el host a la entidad del alojamiento
+        //Se asignan las FK de locationEntity, LodgingDetailsEntity y LodgingEntity
 
-        log.info("The host with UUID {} is creating a new lodging...", entity.getHost());
+        locationEntity.setLodging(lodgingDetailsEntity);
 
-        return lodgingRepositoryUseCases.createLodging(entity); // Guarda la entidad
+        lodgingDetailsEntity.setLodging(lodgingEntity);
+        lodgingDetailsEntity.setLocation(locationEntity);
+
+        lodgingEntity.setDetails(lodgingDetailsEntity);
+
+        lodgingEntity.setHost(host); // Asigna el host a la entidad del alojamiento
+
+        log.info("The host with UUID {} is creating a new lodging...", lodgingEntity.getHost());
+
+        return lodgingRepositoryUseCases.createLodging(lodgingEntity); // Guarda la entidad
     }
 
     // Actualizar un alojamientoDTO
@@ -166,7 +187,6 @@ public class LodgingsServices implements LodgingsUseCases {
 
     @Override
     public Void addCommentLodging(CreateCommentDTO dto) {
-
         return commentRepositoryUseCases.addCommentLodging(dto);
     }
 

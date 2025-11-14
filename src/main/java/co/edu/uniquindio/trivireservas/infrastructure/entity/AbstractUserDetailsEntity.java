@@ -18,6 +18,11 @@ public class AbstractUserDetailsEntity {
     @Id
     private UUID userUUID;
 
+    @OneToOne
+    @MapsId
+    @JoinColumn(name = "user_uuid")
+    private AbstractUserEntity user;
+
     @Column
     private String profilePicture;
 

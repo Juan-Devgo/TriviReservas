@@ -15,10 +15,7 @@ import java.util.UUID;
 public class LocationEntity {
 
     @Id
-    private UUID uuid;
-
-    @MapsId
-    @OneToOne
+    @OneToOne(mappedBy = "location")
     @JoinColumn(name = "lodging_uuid")
     private LodgingDetailsEntity lodging;
 

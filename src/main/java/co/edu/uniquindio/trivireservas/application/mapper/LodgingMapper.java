@@ -22,6 +22,7 @@ public interface LodgingMapper {
 
     @Mapping(target = "uuid", expression = "java(java.util.UUID.randomUUID())")
     @Mapping(target = "creationDate", expression = "java(java.time.LocalDateTime.now())")
+    @Mapping(target = "details", ignore = true)
     LodgingEntity createLodgingEntity(CreateLodgingDTO dto);
 
     // LodgingDTO -> LodgingEntity (Actualizar un alojamiento)
@@ -70,7 +71,7 @@ public interface LodgingMapper {
     LodgingEntity toEntityFromDto(LodgingDTO dto);
 
     @Mapping(target = "details.location", expression = "java(mapLocation(details.getLocation(), lodgingEntity))")
-    LodgingDetailsEntity toEntityFromDomain(LodgingDetails details, @Context LodgingEntity LoadgingEntity);
+    LodgingDetailsEntity toEntityFromDomain(LodgingDetails details, @Context LodgingEntity lodgingEntity);
 
     // Método de actualización de detalles de la entidad
 
@@ -121,7 +122,7 @@ public interface LodgingMapper {
             ServiceEntity entity = new ServiceEntity();
             entity.setName(serviceName);
             return entity;
-            }).toList();
+        }).toList();
     }
 
     // List<String> -> List<PicturesEntity>
@@ -134,7 +135,7 @@ public interface LodgingMapper {
             PictureEntity entity = new PictureEntity();
             entity.setUrl(url);
             return entity;
-            }).toList();
+        }).toList();
     }
 
     default LocationEntity mapLocation(Location location, LodgingDetailsEntity lodgingDetailsEntity) {

@@ -1,0 +1,39 @@
+POST http://localhost:8080/api/auth/host/login/email
+Content-Type: application/json
+
+{
+	"email": "juans.londonor@uqvirtual.edu.co",
+	"password": "Radiohead123@"
+}
+
+> {% client.global.set("auth_token", response.body.content.token); %}
+
+###
+GET http://localhost:8080/api/lodgings
+
+###
+POST http://localhost:8080/api/lodgings
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "title": "My Lodging",
+  "description": "This is my farm, I love it!",
+  "type": "FARM",
+  "details": {
+    "maxGuests": 10,
+    "location": {
+      "city": "Montenegro",
+      "address": "Vereda veredosa, Finca Los Marranitos",
+      "latitude": -60,
+      "longitude": 60
+    },
+    "price": 60000,
+    "services": [
+      "No Wifi",
+      "Bathroom",
+      "floor"
+    ],
+    "pictures": []
+  }
+}

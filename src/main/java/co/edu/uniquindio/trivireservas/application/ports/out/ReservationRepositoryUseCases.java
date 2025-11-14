@@ -1,7 +1,6 @@
 package co.edu.uniquindio.trivireservas.application.ports.out;
 
 import co.edu.uniquindio.trivireservas.application.dto.PageResponse;
-import co.edu.uniquindio.trivireservas.application.dto.reservation.ReservationDTO;
 import co.edu.uniquindio.trivireservas.application.ports.in.ReservationsFilters;
 import co.edu.uniquindio.trivireservas.domain.Reservation;
 import co.edu.uniquindio.trivireservas.domain.ReservationState;

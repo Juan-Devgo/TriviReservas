@@ -16,10 +16,7 @@ import java.util.UUID;
 public class LodgingDetailsEntity {
 
     @Id
-    private UUID uuid;
-
-    @MapsId
-    @OneToOne
+    @OneToOne(mappedBy = "details")
     @JoinColumn(name = "lodging_uuid")
     private LodgingEntity lodging;
 
@@ -36,6 +33,6 @@ public class LodgingDetailsEntity {
     private int maxGuests;
 
     @JoinColumn(nullable = false)
-    @OneToOne(cascade =  CascadeType.ALL, orphanRemoval = true)
+    @OneToOne( cascade =  CascadeType.ALL, orphanRemoval = true)
     private LocationEntity location;
 }

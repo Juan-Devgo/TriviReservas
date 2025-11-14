@@ -25,7 +25,7 @@ public interface AbstractUserRepositoryUseCases {
 
     AbstractUser getAbstractUserByPhone(String phone);
 
-    User getUserByUUID(UUID uuid);
+    AbstractUser getUserByUUID(UUID uuid);
 
     User getUserByEmail(String email);
 

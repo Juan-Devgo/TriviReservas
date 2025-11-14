@@ -2,8 +2,9 @@ package co.edu.uniquindio.trivireservas.application.service;
 
 import co.edu.uniquindio.trivireservas.application.dto.EmailDTO;
 import co.edu.uniquindio.trivireservas.application.dto.user.*;
+import co.edu.uniquindio.trivireservas.application.exception.ConflictValueException;
+import co.edu.uniquindio.trivireservas.application.exception.PasswordCodeIncorrectException;
 import co.edu.uniquindio.trivireservas.application.mapper.AbstractUserMapper;
-import co.edu.uniquindio.trivireservas.application.mapper.UserMapper;
 import co.edu.uniquindio.trivireservas.application.ports.in.AuthenticationUseCases;
 import co.edu.uniquindio.trivireservas.application.ports.in.EmailUseCase;
 import co.edu.uniquindio.trivireservas.application.ports.out.AbstractUserRepositoryUseCases;
@@ -55,12 +56,12 @@ public class AuthenticationServices implements AuthenticationUseCases {
     public Void register(RegisterDTO dto) {
 
         if (abstractUserRepositoryUseCases.doesEmailExist(dto.email())) {
-            throw new RuntimeException("User already registered"); // TODO Asignar excepción
+            throw new ConflictValueException("Ya existe un usuario registrado con este email.");
         }
 
         if (!dto.phone().isBlank()) {
             if (abstractUserRepositoryUseCases.doesPhoneExist(dto.phone())) {
-                throw new RuntimeException("User already registered"); // TODO Asignar excepción
+                throw new ConflictValueException("Ya existe un usuario registrado con este teléfono.");
             }
         }
 
@@ -78,9 +79,9 @@ public class AuthenticationServices implements AuthenticationUseCases {
         // Según el modo de inicio de sesión se busca el Host en el repositorio.
         if(mode.equals("email")) {
 
-            if(dto.email() == null) throw new RuntimeException("Invalid email"); // TODO Asignar excepción
+            if(dto.email() == null) throw new ConflictValueException("No se encontró el email.");
 
-            if(dto.email().isBlank()) throw new RuntimeException("Invalid email"); // TODO Asignar excepción
+            if(dto.email().isBlank()) throw new ConflictValueException("No se encontró el email.");
 
             try {
                 host = abstractUserRepositoryUseCases.getHostByEmail(dto.email()) ;
@@ -90,9 +91,9 @@ public class AuthenticationServices implements AuthenticationUseCases {
 
         } else if (mode.equals("phone")) {
 
-            if(dto.phone() == null) throw new RuntimeException("Invalid email"); // TODO Asignar excepción
+            if(dto.phone() == null) throw new ConflictValueException("No se encontró el teléfono.");
 
-            if(dto.phone().isBlank()) throw new RuntimeException("Invalid phone"); // TODO Asignar excepción
+            if(dto.phone().isBlank()) throw new ConflictValueException("No se encontró el teléfono.");
 
             try {
                 host = abstractUserRepositoryUseCases.getHostByPhone(dto.phone());
@@ -101,16 +102,16 @@ public class AuthenticationServices implements AuthenticationUseCases {
             }
 
         } else {
-            throw new RuntimeException("Invalid mode"); //TODO Asignar excepción
+            throw new ConflictValueException("Error al iniciar sesión.");
         }
 
         // Se verifica que el host exista y que la contraseña sea correcta.
         if(host == null) {
-            throw new RuntimeException("Invalid password or " + mode); //TODO Asignar excepción
+            throw new ConflictValueException("No se encontró al host.");
         }
         
         if(!encoder.matches(dto.password(), host.getPassword())) {
-            throw new RuntimeException("Invalid password or " + mode); //TODO Asignar excepción
+            throw new ConflictValueException("La contraseña no es correcta.");
         }
 
         // Se genera el token JWT.
@@ -129,7 +130,7 @@ public class AuthenticationServices implements AuthenticationUseCases {
         if(mode.equals("email")) {
 
             if(dto.email().isBlank()) {
-                throw new RuntimeException("Invalid email"); // TODO Asignar excepción
+                throw new ConflictValueException("No se encontró el email.");
             }
 
             try {
@@ -141,7 +142,7 @@ public class AuthenticationServices implements AuthenticationUseCases {
         } else if (mode.equals("phone")) {
 
             if(dto.phone().isBlank()) {
-                throw new RuntimeException("Invalid phone"); // TODO Asignar excepción
+                throw new ConflictValueException("No se encontró el teléfono.");
             }
 
             try {
@@ -151,16 +152,16 @@ public class AuthenticationServices implements AuthenticationUseCases {
             }
 
         } else {
-            throw new RuntimeException("Invalid mode"); //TODO Asignar excepción
+            throw new ConflictValueException("Error al iniciar sesión.");
         }
 
         // Se verifica que el usuario exista y que la contraseña sea correcta.
         if(user == null) {
-            throw new RuntimeException("Invalid password or " + mode); //TODO Asignar excepción
+            throw new ConflictValueException("No se encontró al usuario.");
         }
         
         if(!encoder.matches(dto.password(), user.getPassword())) {
-            throw new RuntimeException("Invalid password or " + mode); //TODO Asignar excepción
+            throw new ConflictValueException("La contraseña no es correcta.");
         }
 
         // Se genera el token JWT.
@@ -188,7 +189,7 @@ public class AuthenticationServices implements AuthenticationUseCases {
 
         } catch (Exception e) {
 
-            throw new RuntimeException("No se ha podido enviar el email: " + e); // TODO Asignar excepción
+            throw new ConflictValueException("No se pudo enviar el correo.");
 
         }
 
@@ -210,8 +211,7 @@ public class AuthenticationServices implements AuthenticationUseCases {
 
             log.info("Password code with email: {} and code: {} was invalid.", dto.email(), dto.code());
 
-            throw new ArithmeticException("The code expired or invalid code."); // TODO Asignar excepción
-
+            throw new PasswordCodeIncorrectException("El código expiró o no es válido.");
         }
 
         return null;

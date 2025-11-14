@@ -1,6 +1,7 @@
 package co.edu.uniquindio.trivireservas.infrastructure.persistence.repository;
 
 import co.edu.uniquindio.trivireservas.application.dto.PageResponse;
+import co.edu.uniquindio.trivireservas.application.dto.lodging.LodgingDTO;
 import co.edu.uniquindio.trivireservas.application.mapper.LodgingMapper;
 import co.edu.uniquindio.trivireservas.application.ports.in.LodgingsFilters;
 import co.edu.uniquindio.trivireservas.application.ports.out.LodgingRepositoryUseCases;
@@ -26,6 +27,10 @@ public class LodgingRepository implements LodgingRepositoryUseCases {
 
     private final LodgingJpaRepository lodgingJpaRepository;
     private final LodgingMapper lodgingMapper;
+    private final LocationJpaRepository locationJpaRepository;
+    private final LodgingDetailsJpaRepository lodgingDetailsJpaRepository;
+    private final ServicesJpaRepository servicesJpaRepository;
+    private final PicturesJpaRepository picturesJpaRepository;
 
     @Override
     public PageResponse<Lodging> getLodgings(LodgingsFilters filters, int page) {
@@ -140,7 +145,17 @@ public class LodgingRepository implements LodgingRepositoryUseCases {
 
     @Override
     public Void createLodging(LodgingEntity entity) {
+
+        locationJpaRepository.save(entity.getDetails().getLocation());
+
+        picturesJpaRepository.saveAll(entity.getDetails().getPictures());
+
+        servicesJpaRepository.saveAll(entity.getDetails().getServices());
+
+        lodgingDetailsJpaRepository.save(entity.getDetails());
+
         lodgingJpaRepository.save(entity);
+
         log.info("Lodging created with title: {}", entity.getTitle());
         return null;
     }
@@ -148,7 +163,7 @@ public class LodgingRepository implements LodgingRepositoryUseCases {
     @Override
     public Void deleteLodging(UUID lodgingUUID) {
         LodgingEntity lodgingEntity = lodgingJpaRepository.findById(lodgingUUID)
-                .orElseThrow(() -> new EntityNotFoundException("Lodging not found: " + lodgingUUID));
+                .orElseThrow(() -> new EntityNotFoundException(lodgingUUID.toString()));
 
         lodgingEntity.setState(LodgingState.DELETED);
         lodgingJpaRepository.save(lodgingEntity);
@@ -156,9 +171,9 @@ public class LodgingRepository implements LodgingRepositoryUseCases {
     }
 
     @Override
-    public Void updateLodging(UUID lodgingUUID, co.edu.uniquindio.trivireservas.application.dto.lodging.LodgingDTO dto) {
+    public Void updateLodging(UUID lodgingUUID, LodgingDTO dto) {
         LodgingEntity lodgingEntity = lodgingJpaRepository.findById(lodgingUUID)
-                .orElseThrow(() -> new EntityNotFoundException("Lodging not found: " + lodgingUUID));
+                .orElseThrow(() -> new EntityNotFoundException(lodgingUUID.toString()));
 
         lodgingMapper.updateLodgingEntity(dto, lodgingEntity);
         lodgingJpaRepository.save(lodgingEntity);

@@ -112,20 +112,27 @@ public class AbstractUserRepository implements AbstractUserRepositoryUseCases {
 
     @Override
     @Transactional(readOnly = true)
-    public User getUserByUUID(UUID uuid) {
+    public AbstractUser getUserByUUID(UUID uuid) {
 
-        Optional<UserEntity> optionalEntity = userJpaRepository.findById(uuid);
+        Optional<AbstractUserEntity> optionalEntity = abstractUserJpaRepository.findById(uuid);
 
         if(optionalEntity.isEmpty()) {
             throw new EntityNotFoundException(uuid.toString());
         }
 
-        UserEntity entity = optionalEntity.get();
+        AbstractUserEntity entity = optionalEntity.get();
 
-        // Evita un LazyInitializationException al cargar los alojamientos dentro del contexto de Hibernate.
-        entity.getFavorites().size();
+        if(entity instanceof UserEntity e){
+            ((UserEntity) entity).getFavorites().size();
+            return userMapper.toDomainFromEntity(e);
+        }else
 
-        return userMapper.toDomainFromEntity(entity);
+        if(entity instanceof HostEntity e){
+            return hostMapper.toDomainFromEntity(e);
+        }
+
+        return null;
+
     }
 
     @Override

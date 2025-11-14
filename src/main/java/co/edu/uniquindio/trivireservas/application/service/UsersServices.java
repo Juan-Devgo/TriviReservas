@@ -68,7 +68,7 @@ public class UsersServices implements UsersUseCases {
 
     @Override
     public UserDTO getUser(UUID uuid) {
-        return userMapper.toDtoFromDomain(abstractUserRepositoryUseCases.getUserByUUID(uuid));
+        return userMapper.toDtoFromDomain((User) abstractUserRepositoryUseCases.getUserByUUID(uuid));
     }
 
     @Override
