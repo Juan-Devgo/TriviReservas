@@ -1,21 +1,12 @@
 package co.edu.uniquindio.trivireservas.infrastructure.persistence.repository;
 
 import co.edu.uniquindio.trivireservas.application.dto.PageResponse;
-import co.edu.uniquindio.trivireservas.application.dto.user.UpdatePasswordDTO;
 import co.edu.uniquindio.trivireservas.application.dto.user.UpdateUserDTO;
-import co.edu.uniquindio.trivireservas.application.dto.user.UserDTO;
-import co.edu.uniquindio.trivireservas.application.mapper.AbstractUserMapper;
-import co.edu.uniquindio.trivireservas.application.mapper.HostMapper;
-import co.edu.uniquindio.trivireservas.application.mapper.UserMapper;
+import co.edu.uniquindio.trivireservas.application.exception.*;
+import co.edu.uniquindio.trivireservas.application.mapper.*;
 import co.edu.uniquindio.trivireservas.application.ports.out.AbstractUserRepositoryUseCases;
-import co.edu.uniquindio.trivireservas.domain.Host;
-import co.edu.uniquindio.trivireservas.domain.User;
-import co.edu.uniquindio.trivireservas.domain.AbstractUser;
-import co.edu.uniquindio.trivireservas.domain.UserRole;
-import co.edu.uniquindio.trivireservas.infrastructure.entity.AbstractUserEntity;
-import co.edu.uniquindio.trivireservas.infrastructure.entity.HostEntity;
-import co.edu.uniquindio.trivireservas.infrastructure.entity.UserEntity;
-import jakarta.persistence.EntityNotFoundException;
+import co.edu.uniquindio.trivireservas.domain.*;
+import co.edu.uniquindio.trivireservas.infrastructure.entity.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -27,7 +18,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Repository
 @RequiredArgsConstructor
@@ -80,7 +70,7 @@ public class AbstractUserRepository implements AbstractUserRepositoryUseCases {
         Optional<AbstractUserEntity> optionalEntity = abstractUserJpaRepository.findById(uuid);
 
         if(optionalEntity.isEmpty()) {
-            throw new EntityNotFoundException(uuid.toString());
+            throw new EntityNotFoundException("No se obtuvo el usuario.");
         }
 
         return userMapper.toDomainFromEntity(userMapper.castToUserEntity(optionalEntity.get()));
@@ -92,7 +82,7 @@ public class AbstractUserRepository implements AbstractUserRepositoryUseCases {
         Optional<AbstractUserEntity> optionalEntity = abstractUserJpaRepository.findByEmail(email);
 
         if(optionalEntity.isEmpty()) {
-            throw new EntityNotFoundException(email);
+            throw new EntityNotFoundException("No se obtuvo el email.");
         }
 
         return userMapper.toDomainFromEntity(userMapper.castToUserEntity(optionalEntity.get()));
@@ -104,7 +94,7 @@ public class AbstractUserRepository implements AbstractUserRepositoryUseCases {
         Optional<AbstractUserEntity> optionalEntity = abstractUserJpaRepository.findByPhone(phone);
 
         if(optionalEntity.isEmpty()) {
-            throw new EntityNotFoundException(phone);
+            throw new EntityNotFoundException("No se obtuvo el teléfono.");
         }
 
         return userMapper.toDomainFromEntity(userMapper.castToUserEntity(optionalEntity.get()));
@@ -117,7 +107,7 @@ public class AbstractUserRepository implements AbstractUserRepositoryUseCases {
         Optional<AbstractUserEntity> optionalEntity = abstractUserJpaRepository.findById(uuid);
 
         if(optionalEntity.isEmpty()) {
-            throw new EntityNotFoundException(uuid.toString());
+            throw new EntityNotFoundException("No se obtuvo el usuario.");
         }
 
         AbstractUserEntity entity = optionalEntity.get();
@@ -142,7 +132,7 @@ public class AbstractUserRepository implements AbstractUserRepositoryUseCases {
         Optional<UserEntity> optionalEntity = userJpaRepository.findByEmail(email);
 
         if(optionalEntity.isEmpty()) {
-            throw new EntityNotFoundException(email);
+            throw new EntityNotFoundException("No se obtuvo el email.");
         }
 
         UserEntity entity = optionalEntity.get();
@@ -160,7 +150,7 @@ public class AbstractUserRepository implements AbstractUserRepositoryUseCases {
         Optional<UserEntity> optionalEntity = userJpaRepository.findByPhone(phone);
 
         if(optionalEntity.isEmpty()) {
-            throw new EntityNotFoundException(phone);
+            throw new EntityNotFoundException("No se obtuvo el teléfono.");
         }
 
         UserEntity entity = optionalEntity.get();
@@ -178,7 +168,7 @@ public class AbstractUserRepository implements AbstractUserRepositoryUseCases {
         Optional<HostEntity> optionalEntity = hostJpaRepository.findById(uuid);
 
         if(optionalEntity.isEmpty()) {
-            throw  new EntityNotFoundException(uuid.toString());
+            throw new EntityNotFoundException("No se obtuvo host.");
         }
 
         HostEntity entity = optionalEntity.get();
@@ -196,7 +186,7 @@ public class AbstractUserRepository implements AbstractUserRepositoryUseCases {
         Optional<HostEntity> optionalEntity = hostJpaRepository.findByEmail(email);
 
         if(optionalEntity.isEmpty()) {
-            throw new EntityNotFoundException(email);
+            throw new EntityNotFoundException("No se obtuvo el email.");
         }
 
         HostEntity entity = optionalEntity.get();
@@ -214,7 +204,7 @@ public class AbstractUserRepository implements AbstractUserRepositoryUseCases {
         Optional<HostEntity> optionalEntity = hostJpaRepository.findByPhone(phone);
 
         if(optionalEntity.isEmpty()) {
-            throw new EntityNotFoundException(phone);
+            throw new EntityNotFoundException("No se obtuvo teléfono.");
         }
 
         HostEntity entity = optionalEntity.get();
@@ -237,7 +227,7 @@ public class AbstractUserRepository implements AbstractUserRepositoryUseCases {
             hostJpaRepository.save(hostMapper.castToHostEntity(user));
 
         } else {
-            throw new IllegalArgumentException("Invalid role");
+            throw new InvalidRoleException("No es válido el rol.");
         }
 
         return null;
@@ -277,7 +267,7 @@ public class AbstractUserRepository implements AbstractUserRepositoryUseCases {
         Optional<AbstractUserEntity> optionalEntity = abstractUserJpaRepository.findById(userUUID);
 
         if(optionalEntity.isEmpty()) {
-            throw new EntityNotFoundException(userUUID.toString());
+            throw new EntityNotFoundException("No se obtuvo el usuario.");
         }
 
         AbstractUserEntity abstractUserEntity = optionalEntity.get();
@@ -299,7 +289,7 @@ public class AbstractUserRepository implements AbstractUserRepositoryUseCases {
             hostJpaRepository.save(hostEntity);
             
         } else {
-            throw new IllegalArgumentException("Invalid role");
+            throw new InvalidRoleException("No es válido el rol.");
         }
 
         return null;
@@ -333,7 +323,7 @@ public class AbstractUserRepository implements AbstractUserRepositoryUseCases {
             hostJpaRepository.save(hostEntity);
 
         } else {
-            throw new IllegalArgumentException("Invalid role");
+            throw new InvalidRoleException("No es válido el rol.");
         }
 
         return null;

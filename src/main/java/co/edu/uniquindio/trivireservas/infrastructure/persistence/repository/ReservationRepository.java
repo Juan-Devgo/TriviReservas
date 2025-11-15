@@ -1,14 +1,13 @@
 package co.edu.uniquindio.trivireservas.infrastructure.persistence.repository;
 
 import co.edu.uniquindio.trivireservas.application.dto.PageResponse;
-import co.edu.uniquindio.trivireservas.application.dto.reservation.ReservationStateDTO;
+import co.edu.uniquindio.trivireservas.application.exception.EntityNotFoundException;
 import co.edu.uniquindio.trivireservas.application.mapper.ReservationMapper;
 import co.edu.uniquindio.trivireservas.application.ports.in.ReservationsFilters;
 import co.edu.uniquindio.trivireservas.application.ports.out.ReservationRepositoryUseCases;
 import co.edu.uniquindio.trivireservas.domain.Reservation;
 import co.edu.uniquindio.trivireservas.domain.ReservationState;
 import co.edu.uniquindio.trivireservas.infrastructure.entity.ReservationEntity;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -101,7 +100,7 @@ public class ReservationRepository implements ReservationRepositoryUseCases {
         Optional<ReservationEntity> optionalEntity = reservationJpaRepository.findById(reservationUUID);
 
         if(optionalEntity.isEmpty()) {
-            throw new EntityNotFoundException(reservationUUID.toString());
+            throw new EntityNotFoundException("No se pudo actualizar la reserva.");
         }
 
         ReservationEntity reservationEntity = optionalEntity.get();

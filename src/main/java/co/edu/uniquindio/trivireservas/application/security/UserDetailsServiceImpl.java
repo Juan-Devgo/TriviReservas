@@ -1,5 +1,6 @@
 package co.edu.uniquindio.trivireservas.application.security;
 
+import co.edu.uniquindio.trivireservas.application.exception.EntityNotFoundException;
 import co.edu.uniquindio.trivireservas.domain.AbstractUser;
 import co.edu.uniquindio.trivireservas.infrastructure.persistence.repository.AbstractUserRepository;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +27,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         AbstractUser user = userRepository.getUserByUUID(UUID.fromString(uuid));
 
         if (user == null) {
-            throw new UsernameNotFoundException("User not found with UUID: " + uuid);
+            throw new EntityNotFoundException("No se obtuvo el uuid del usuario.");
         }
 
         List<GrantedAuthority> authorities = new ArrayList<>();

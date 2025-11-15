@@ -1,15 +1,14 @@
 package co.edu.uniquindio.trivireservas.infrastructure.persistence.repository;
 
-import co.edu.uniquindio.trivireservas.application.dto.lodging.CommentDTO;
 import co.edu.uniquindio.trivireservas.application.dto.lodging.CreateCommentDTO;
+import co.edu.uniquindio.trivireservas.application.exception.EntityNotFoundException;
+import co.edu.uniquindio.trivireservas.application.exception.UnspecifiedCommentException;
 import co.edu.uniquindio.trivireservas.application.mapper.CommentMapper;
 import co.edu.uniquindio.trivireservas.application.ports.out.CommentRepositoryUseCases;
 import co.edu.uniquindio.trivireservas.application.service.AuthenticationServices;
 import co.edu.uniquindio.trivireservas.domain.Comment;
 import co.edu.uniquindio.trivireservas.infrastructure.entity.AbstractUserEntity;
 import co.edu.uniquindio.trivireservas.infrastructure.entity.CommentEntity;
-import co.edu.uniquindio.trivireservas.infrastructure.entity.LodgingEntity;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -30,7 +29,7 @@ public class CommentRepository implements CommentRepositoryUseCases {
     public Comment getComment(UUID commentUUID) {
 
         CommentEntity commentEntity = commentJpaRepository.findById(commentUUID)
-                .orElseThrow(() -> new EntityNotFoundException(commentUUID.toString()));
+                .orElseThrow(() -> new EntityNotFoundException("No se pudo encontrar el comentario"));
 
         return commentMapper.toDomain(commentEntity);
     }
@@ -55,10 +54,10 @@ public class CommentRepository implements CommentRepositoryUseCases {
     public Void addCommentResponseLodging(UUID lodgingUUID, UUID commentUUID, String response) {
 
         CommentEntity commentEntity = commentJpaRepository.findById(commentUUID)
-                .orElseThrow(() -> new EntityNotFoundException(commentUUID.toString()));
+                .orElseThrow(() -> new EntityNotFoundException("No se encontró el cometario."));
 
         if (!commentEntity.getLodging().getUuid().equals(lodgingUUID)) {
-            throw new IllegalArgumentException("The comment does not belong to the specified lodging"); // TODO Asignar excepción
+            throw new UnspecifiedCommentException("El comentario no está en el alojamiento.");
         }
 
         commentEntity.setResponse(response);

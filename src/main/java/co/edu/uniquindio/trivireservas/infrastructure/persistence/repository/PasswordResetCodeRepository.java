@@ -1,18 +1,17 @@
 package co.edu.uniquindio.trivireservas.infrastructure.persistence.repository;
 
+import co.edu.uniquindio.trivireservas.application.exception.EntityNotFoundException;
 import co.edu.uniquindio.trivireservas.application.ports.out.AbstractUserRepositoryUseCases;
 import co.edu.uniquindio.trivireservas.application.ports.out.PasswordResetCodeRepositoryUseCases;
 import co.edu.uniquindio.trivireservas.domain.AbstractUser;
 import co.edu.uniquindio.trivireservas.infrastructure.entity.AbstractUserEntity;
 import co.edu.uniquindio.trivireservas.infrastructure.entity.PasswordResetCodeEntity;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Slf4j
@@ -66,7 +65,7 @@ public class PasswordResetCodeRepository implements PasswordResetCodeRepositoryU
 
             log.warn("Abstract user entity with email: {} not found trying to validate a password reset code.", email);
 
-            throw new EntityNotFoundException(email);
+            throw new EntityNotFoundException("No se obtuvo el email.");
         }
 
         AbstractUser abstractUser = abstractUserRepositoryUseCases.getAbstractUserByEmail(email);
@@ -84,7 +83,7 @@ public class PasswordResetCodeRepository implements PasswordResetCodeRepositoryU
 
             log.warn("Password reset code entity with email: {} not found.", email);
 
-            throw new EntityNotFoundException(email + " (PasswordResetCodeEntity)");
+            throw new EntityNotFoundException("No se obtuvo el código para reiniciar la contraseña.");
         }
 
         log.info("{} codes found for email: {}", entityList.size(), email);
@@ -115,7 +114,6 @@ public class PasswordResetCodeRepository implements PasswordResetCodeRepositoryU
 
     @Override
     public void deleteCode(UUID uuid) {
-
         passwordResetCodeJpaRepository.deleteById(uuid);
     }
 }

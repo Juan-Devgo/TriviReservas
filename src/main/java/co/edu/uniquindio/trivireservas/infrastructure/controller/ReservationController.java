@@ -68,10 +68,10 @@ public class ReservationController {
         );
     }
 
-    @PostMapping("/{lodgingUUID}")
+    @PostMapping
     public ResponseEntity<ResponseDTO<Void>> createReservation(@Valid @RequestBody CreateReservationDTO reservationDTO) {
 
-        log.info("Request received to create a reservation. (POST /api/reservations/{lodgingUUID})");
+        log.info("Request received to create a reservation. (POST /api/reservations)");
 
         return ResponseEntity.status(201).body(new ResponseDTO<>(false,
                 "Reserva creada satisfactoriamente.",

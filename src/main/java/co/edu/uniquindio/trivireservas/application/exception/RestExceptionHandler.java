@@ -2,12 +2,13 @@ package co.edu.uniquindio.trivireservas.application.exception;
 
 import co.edu.uniquindio.trivireservas.application.dto.ErrorDTO;
 import co.edu.uniquindio.trivireservas.application.dto.ResponseDTO;
+import io.jsonwebtoken.ExpiredJwtException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice
-public class RestExceptionHandler { // TODO
+public class RestExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ResponseDTO<ErrorDTO>> handleRuntimeException(Exception ex) {
@@ -19,6 +20,11 @@ public class RestExceptionHandler { // TODO
     public ResponseEntity<ResponseDTO<ErrorDTO>> handleRuntimeException(RuntimeException ex) {
         ex.printStackTrace();
         return ResponseEntity.status(500).body(new ResponseDTO<>(true , "", new ErrorDTO("n/n", ex.getMessage())));
+    }
+
+    @ExceptionHandler(ExpiredJwtException.class)
+    public ResponseEntity<ResponseDTO<ErrorDTO>> handleExpiredJwtException(ExpiredJwtException ex) {
+        return ResponseEntity.status(401).body(new ResponseDTO<>(true , "", new ErrorDTO("401", "Acceso denegado, no has iniciado sesión.")));
     }
 
     @ExceptionHandler(LoginException.class)

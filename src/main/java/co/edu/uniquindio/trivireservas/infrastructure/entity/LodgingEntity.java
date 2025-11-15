@@ -44,9 +44,11 @@ public class LodgingEntity {
     private LodgingDetailsEntity details;
 
     @Column
+    @Enumerated(EnumType.STRING)
     private LodgingType type;
 
     @Column
+    @Enumerated(EnumType.STRING)
     private LodgingState state;
 
     @Column(nullable = false)

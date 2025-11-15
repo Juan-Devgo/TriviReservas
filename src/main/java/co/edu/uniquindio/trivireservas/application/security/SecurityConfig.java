@@ -63,6 +63,9 @@ public class SecurityConfig {
                                 .requestMatchers(HttpMethod.POST, "/api/reservations/**").hasRole("USER")
                                 .requestMatchers(HttpMethod.PATCH, "/api/reservations/**").authenticated()
 
+                                // Imágenes
+                                .requestMatchers(HttpMethod.POST, "/api/image/**").authenticated()
+
                                 // Resto de Endpoints
                                 .anyRequest().authenticated()
                 )

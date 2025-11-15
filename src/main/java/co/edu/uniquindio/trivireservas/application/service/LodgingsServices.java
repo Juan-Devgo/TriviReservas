@@ -139,11 +139,16 @@ public class LodgingsServices implements LodgingsUseCases {
     @Transactional
     public Void createLodging(CreateLodgingDTO dto) {
 
+        UUID newLodgingUUID = UUID.randomUUID(); //Se define un nuevo UUID
+
         LocationEntity locationEntity = locationMapper.createLodgingDetailsEntity(dto.details().location()); // Transforma el DTO de Location a entidad
+        locationEntity.setUuid(newLodgingUUID);
 
         LodgingDetailsEntity lodgingDetailsEntity = lodgingDetailsMapper.createLodgingDetailsEntity(dto.details()); // Transforma el DTO de LodgingDetails a entidad
+        lodgingDetailsEntity.setUuid(newLodgingUUID);
 
         LodgingEntity lodgingEntity = lodgingMapper.createLodgingEntity(dto); // Transforma el DTO de Lodging a entidad
+        lodgingEntity.setUuid(newLodgingUUID);
 
         UUID hostUUID = authenticationUseCases.getUUIDAuthenticatedUser(); // Se obtiene el UUID del host autenticado
 
@@ -161,7 +166,7 @@ public class LodgingsServices implements LodgingsUseCases {
 
         lodgingEntity.setHost(host); // Asigna el host a la entidad del alojamiento
 
-        log.info("The host with UUID {} is creating a new lodging...", lodgingEntity.getHost());
+        log.info("The host with UUID {} is creating a new lodging...", lodgingEntity.getHost().getUuid());
 
         return lodgingRepositoryUseCases.createLodging(lodgingEntity); // Guarda la entidad
     }

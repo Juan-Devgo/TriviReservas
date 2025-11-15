@@ -16,6 +16,8 @@ import java.util.UUID;
 public class LodgingDetailsEntity {
 
     @Id
+    private UUID uuid;
+
     @OneToOne(mappedBy = "details")
     @JoinColumn(name = "lodging_uuid")
     private LodgingEntity lodging;

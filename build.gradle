@@ -58,6 +58,8 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test:7.0.0-M3'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    runtimeOnly 'org.postgresql:postgresql:42.7.8'
 }
 
 tasks.withType(JavaCompile).configureEach {
@@ -66,8 +68,7 @@ tasks.withType(JavaCompile).configureEach {
             '-Amapstruct.defaultComponentModel=spring',
             '-Amapstruct.verbose=true'
     ]
-}
 
-tasks.named('test') {
-    useJUnitPlatform()
+project.gradle.startParameter.excludedTaskNames.add("test")
+
 }

@@ -2,13 +2,13 @@ package co.edu.uniquindio.trivireservas.infrastructure.persistence.repository;
 
 import co.edu.uniquindio.trivireservas.application.dto.PageResponse;
 import co.edu.uniquindio.trivireservas.application.dto.lodging.LodgingDTO;
+import co.edu.uniquindio.trivireservas.application.exception.EntityNotFoundException;
 import co.edu.uniquindio.trivireservas.application.mapper.LodgingMapper;
 import co.edu.uniquindio.trivireservas.application.ports.in.LodgingsFilters;
 import co.edu.uniquindio.trivireservas.application.ports.out.LodgingRepositoryUseCases;
 import co.edu.uniquindio.trivireservas.domain.Lodging;
 import co.edu.uniquindio.trivireservas.domain.LodgingState;
 import co.edu.uniquindio.trivireservas.infrastructure.entity.LodgingEntity;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -60,7 +60,7 @@ public class LodgingRepository implements LodgingRepositoryUseCases {
     public Lodging getLodgingByUUID(UUID uuid) {
         return lodgingJpaRepository.findById(uuid)
                 .map(lodgingMapper::toDomainFromEntity)
-                .orElseThrow(() -> new EntityNotFoundException(uuid.toString()));
+                .orElseThrow(() -> new EntityNotFoundException("No se encontraron los alojamientos."));
     }
 
     @Override
@@ -148,11 +148,11 @@ public class LodgingRepository implements LodgingRepositoryUseCases {
 
         locationJpaRepository.save(entity.getDetails().getLocation());
 
+        lodgingDetailsJpaRepository.save(entity.getDetails());
+
         picturesJpaRepository.saveAll(entity.getDetails().getPictures());
 
         servicesJpaRepository.saveAll(entity.getDetails().getServices());
-
-        lodgingDetailsJpaRepository.save(entity.getDetails());
 
         lodgingJpaRepository.save(entity);
 

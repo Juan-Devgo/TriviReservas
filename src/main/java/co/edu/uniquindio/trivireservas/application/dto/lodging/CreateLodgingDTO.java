@@ -9,5 +9,6 @@ public record CreateLodgingDTO(
         @NotBlank @Length(min = 4, max = 128) String title,
         @NotBlank @Length(min = 4, max = 512) String description,
         @NotBlank @Pattern(regexp = "(HUT|FARM|APARTMENT|HOUSE|HOTEL)") String type,
+        @NotBlank @Pattern(regexp = "(ACTIVE|DELETED)") String state,
         @Valid CreateLodgingDetailsDTO details
 ) {}

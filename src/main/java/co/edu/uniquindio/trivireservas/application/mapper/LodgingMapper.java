@@ -94,10 +94,12 @@ public interface LodgingMapper {
     @AfterMapping
     default void afterMapping(@MappingTarget LodgingEntity lodgingEntity) {
 
-        lodgingEntity.getDetails().setLodging(lodgingEntity);
-        lodgingEntity.getDetails().getLocation().setLodging(lodgingEntity.getDetails());
-        lodgingEntity.getDetails().getServices().forEach(s -> s.setLodging(lodgingEntity.getDetails()));
-        lodgingEntity.getDetails().getPictures().forEach(p -> p.setLodging(lodgingEntity.getDetails()));
+        if(lodgingEntity.getDetails() != null) {
+            lodgingEntity.getDetails().setLodging(lodgingEntity);
+            lodgingEntity.getDetails().getLocation().setLodging(lodgingEntity.getDetails());
+            lodgingEntity.getDetails().getServices().forEach(s -> s.setLodging(lodgingEntity.getDetails()));
+            lodgingEntity.getDetails().getPictures().forEach(p -> p.setLodging(lodgingEntity.getDetails()));
+        }
     }
 
     @Named("uuidToAbstractUserEntity")
